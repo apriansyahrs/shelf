@@ -33,5 +33,7 @@ class DatabaseSeeder extends Seeder
 
         Artisan::call('shield:super-admin', ['--user' => 1]);
         Artisan::call('shield:generate --all');
+
+        $this->call(CategorySeeder::class);
     }
 }
