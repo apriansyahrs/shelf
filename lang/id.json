@@ -5,8 +5,27 @@
     "User": "Pengguna",
     "Users": "Pengguna",
 
-    "Name": "Nama",
+    "Asset": "Aset",
+    "Assets": "Aset",
+    "Letter number": "Nomor Surat",
+    "Purchase date": "Tanggal Pembelian",
+    "Business entity": "Badan Usaha",
+    "Item name": "Nama Barang",
+    "Category id": "Kategori Aset",
+    "Brand": "Merek",
+    "Type": "Tipe",
+    "Serial number": "Nomor Seri",
+    "Imei1": "IMEI1",
+    "Imei2": "IMEI2",
+    "Item price": "Harga Barang",
+    "Inventory holder name": "Nama Pemegang Inventaris",
+    "Inventory holder position": "Posisi Pemegang Inventaris",
+    "Item location": "Lokasi Barang",
+    "Item age": "Umur Barang",
+    "Status": "Status",
+    "Upload bast": "Unggah BAST",
 
+    "Name": "Nama",
     "Created at": "Dibuat pada",
     "Updated at": "Diperbarui pada"
 }
