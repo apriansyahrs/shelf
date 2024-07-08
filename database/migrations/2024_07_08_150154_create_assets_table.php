@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('letter_number')->nullable();
             $table->date('purchase_date')->nullable();
-            $table->string('business_entity')->nullable();
+            $table->foreignId('business_entity_id')->constrained()->onDelete('cascade');
             $table->string('item_name')->nullable();
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->string('brand')->nullable();

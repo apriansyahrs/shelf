@@ -52,10 +52,10 @@ class AssetResource extends Resource
                 DatePicker::make('purchase_date')
                     ->translateLabel('Purchase Date')
                     ->required(),
-                TextInput::make('business_entity')
-                    ->translateLabel('Business Entity')
-                    ->required()
-                    ->maxLength(255),
+                Select::make('business_entity_id')
+                    ->label(__('Business Entity'))
+                    ->relationship('businessEntity', 'name')
+                    ->required(),
                 TextInput::make('item_name')
                     ->translateLabel('Item Name')
                     ->required()
@@ -116,7 +116,7 @@ class AssetResource extends Resource
             ->columns([
                 TextColumn::make('letter_number')->translateLabel('Letter Number')->sortable()->searchable(),
                 TextColumn::make('purchase_date')->translateLabel('Purchase Date')->date()->sortable(),
-                TextColumn::make('business_entity')->translateLabel('Business Entity')->sortable()->searchable(),
+                TextColumn::make('businessEntity.name')->translateLabel('Business Entity')->sortable()->searchable(),
                 TextColumn::make('item_name')->translateLabel('Item Name')->sortable()->searchable(),
                 TextColumn::make('category.name')->translateLabel('Category')->sortable(),
                 TextColumn::make('brand')->translateLabel('Brand')->sortable()->searchable(),

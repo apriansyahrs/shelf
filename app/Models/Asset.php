@@ -13,7 +13,7 @@ class Asset extends Model
     protected $fillable = [
         'letter_number',
         'purchase_date',
-        'business_entity',
+        'business_entity_id',
         'item_name',
         'category_id',
         'brand',
@@ -25,15 +25,36 @@ class Asset extends Model
         'inventory_holder_name',
         'inventory_holder_position',
         'item_location',
-        'item_age',
         'status',
         'upload_bast',
     ];
 
+    private function formatDiff($value, $unit)
+    {
+        return $value . ' ' . $unit;
+    }
+
     public function getItemAgeAttribute()
     {
         $purchaseDate = Carbon::parse($this->attributes['purchase_date']);
-        return $purchaseDate->diffInDays(Carbon::now());
+        $now = Carbon::now();
+
+        $diffInDays = $purchaseDate->diffInDays($now);
+        $diffInMonths = $purchaseDate->diffInMonths($now);
+        $diffInYears = $purchaseDate->diffInYears($now);
+
+        if ($diffInYears > 0) {
+            return $this->formatDiff($diffInYears, 'tahun');
+        } elseif ($diffInMonths > 0) {
+            return $this->formatDiff($diffInMonths, 'bulan');
+        } else {
+            return $this->formatDiff($diffInDays, 'hari');
+        }
+    }
+
+    public function businessEntity()
+    {
+        return $this->belongsTo(BusinessEntity::class);
     }
 
     public function category()
