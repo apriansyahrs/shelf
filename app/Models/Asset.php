@@ -11,23 +11,48 @@ class Asset extends Model
     use HasFactory;
 
     protected $fillable = [
-        'letter_number',
         'purchase_date',
         'business_entity_id',
         'item_name',
         'category_id',
-        'brand',
+        'brand_id',
         'type',
         'serial_number',
         'imei1',
         'imei2',
         'item_price',
-        'inventory_holder_name',
-        'inventory_holder_position',
-        'item_location',
+        'asset_location_id',
         'status',
-        'upload_bast',
     ];
+    // Relasi ke tabel business_entities
+    public function businessEntity()
+    {
+        return $this->belongsTo(BusinessEntity::class);
+    }
+
+    // Relasi ke tabel categories
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    // Relasi ke tabel brands
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    // Relasi ke tabel asset_locations
+    public function assetLocation()
+    {
+        return $this->belongsTo(AssetLocation::class);
+    }
+
+    // Relasi ke tabel asset_transfers
+    public function assetTransfers()
+    {
+        return $this->hasMany(AssetTransfer::class);
+    }
 
     private function formatDiff($value, $unit)
     {
@@ -50,15 +75,5 @@ class Asset extends Model
         } else {
             return $this->formatDiff($diffInDays, 'hari');
         }
-    }
-
-    public function businessEntity()
-    {
-        return $this->belongsTo(BusinessEntity::class);
-    }
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
     }
 }

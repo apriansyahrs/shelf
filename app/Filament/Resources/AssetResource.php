@@ -45,15 +45,11 @@ class AssetResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('letter_number')
-                    ->translateLabel('Letter Number')
-                    ->required()
-                    ->maxLength(255),
                 DatePicker::make('purchase_date')
                     ->translateLabel('Purchase Date')
                     ->required(),
                 Select::make('business_entity_id')
-                    ->label(__('Business Entity'))
+                    ->translateLabel('Business Entity')
                     ->relationship('businessEntity', 'name')
                     ->required(),
                 TextInput::make('item_name')
@@ -65,17 +61,15 @@ class AssetResource extends Resource
                     ->options(self::getCategoryOptions())
                     ->searchable()
                     ->required(),
-                TextInput::make('brand')
+                Select::make('brand_id')
                     ->translateLabel('Brand')
-                    ->required()
-                    ->maxLength(255),
+                    ->relationship('brand', 'name')
+                    ->required(),
                 TextInput::make('type')
                     ->translateLabel('Type')
-                    ->required()
                     ->maxLength(255),
                 TextInput::make('serial_number')
                     ->translateLabel('Serial Number')
-                    ->required()
                     ->maxLength(255),
                 TextInput::make('imei1')
                     ->translateLabel('IMEI 1')
@@ -85,28 +79,10 @@ class AssetResource extends Resource
                     ->maxLength(255),
                 TextInput::make('item_price')
                     ->translateLabel('Item Price')
-                    ->required()
                     ->numeric(),
-                TextInput::make('inventory_holder_name')
-                    ->translateLabel('Inventory Holder Name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('inventory_holder_position')
-                    ->translateLabel('Inventory Holder Position')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('item_location')
+                Select::make('asset_location_id')
                     ->translateLabel('Item Location')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('status')
-                    ->translateLabel('Status')
-                    ->required()
-                    ->maxLength(255),
-                FileUpload::make('upload_bast')
-                    ->translateLabel('Upload BAST')
-                    ->disk('public')
-                    ->directory('uploads/bast'),
+                    ->relationship('assetLocation', 'name'),
             ]);
     }
 
@@ -114,25 +90,18 @@ class AssetResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('letter_number')->translateLabel('Letter Number')->sortable()->searchable(),
                 TextColumn::make('purchase_date')->translateLabel('Purchase Date')->date()->sortable(),
                 TextColumn::make('businessEntity.name')->translateLabel('Business Entity')->sortable()->searchable(),
                 TextColumn::make('item_name')->translateLabel('Item Name')->sortable()->searchable(),
                 TextColumn::make('category.name')->translateLabel('Category')->sortable(),
-                TextColumn::make('brand')->translateLabel('Brand')->sortable()->searchable(),
+                TextColumn::make('brand.name')->translateLabel('Brand')->sortable()->searchable(),
                 TextColumn::make('type')->translateLabel('Type')->sortable()->searchable(),
                 TextColumn::make('serial_number')->translateLabel('Serial Number')->sortable()->searchable(),
                 TextColumn::make('imei1')->translateLabel('IMEI 1')->sortable()->searchable(),
                 TextColumn::make('imei2')->translateLabel('IMEI 2')->sortable()->searchable(),
                 TextColumn::make('item_price')->translateLabel('Item Price')->sortable()->money('IDR', true),
-                TextColumn::make('inventory_holder_name')->translateLabel('Inventory Holder Name')->sortable()->searchable(),
-                TextColumn::make('inventory_holder_position')->translateLabel('Inventory Holder Position')->sortable()->searchable(),
-                TextColumn::make('item_location')->translateLabel('Item Location')->sortable()->searchable(),
-                TextColumn::make('item_age')->translateLabel('Item Age')->sortable()->numeric(),
+                TextColumn::make('assetLocation.name')->translateLabel('Item Location')->sortable()->searchable(),
                 TextColumn::make('status')->translateLabel('Status')->sortable()->searchable(),
-                TextColumn::make('upload_bast')->translateLabel('Upload BAST'),
-                TextColumn::make('created_at')->translateLabel('Created at')->dateTime()->sortable(),
-                TextColumn::make('updated_at')->translateLabel('Updated at')->dateTime()->sortable(),
             ])
             ->filters([
                 //

@@ -8,25 +8,36 @@
     "Business Entity": "Badan Usaha",
     "Business Entities": "Badan Usaha",
 
+    "Brand": "Merek",
+    "Brands": "Merek",
+
+    "Asset Location": "Lokasi",
+    "Asset Locations": "Lokasi",
+
+    "Job Title": "Jabatan",
+    "Job Titles": "Jabatan",
+
     "Asset": "Aset",
     "Assets": "Aset",
-    "Letter number": "Nomor Surat",
+
+
     "Purchase date": "Tanggal Pembelian",
     "Business entity": "Badan Usaha",
     "Item name": "Nama Barang",
-    "Category id": "Kategori Aset",
-    "Brand": "Merek",
+    "Category id": "Kategori",
     "Type": "Tipe",
     "Serial number": "Nomor Seri",
-    "Imei1": "IMEI1",
-    "Imei2": "IMEI2",
+    "Imei1": "IMEI 1",
+    "Imei2": "IMEI 2",
     "Item price": "Harga Barang",
     "Inventory holder name": "Nama Pemegang Inventaris",
-    "Inventory holder position": "Posisi Pemegang Inventaris",
-    "Item location": "Lokasi Barang",
+    "Inventory holder position": "Jabatan Pemegang Inventaris",
+    "Asset location": "Lokasi",
     "Item age": "Umur Barang",
     "Status": "Status",
+
     "Upload bast": "Unggah BAST",
+    "Letter number": "Nomor Surat",
 
     "Name": "Nama",
     "Created at": "Dibuat pada",

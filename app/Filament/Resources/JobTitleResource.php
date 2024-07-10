@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BusinessEntityResource\Pages;
-use App\Filament\Resources\BusinessEntityResource\RelationManagers;
-use App\Models\BusinessEntity;
+use App\Filament\Resources\JobTitleResource\Pages;
+use App\Filament\Resources\JobTitleResource\RelationManagers;
+use App\Models\JobTitle;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -15,9 +15,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BusinessEntityResource extends Resource
+class JobTitleResource extends Resource
 {
-    protected static ?string $model = BusinessEntity::class;
+    protected static ?string $model = JobTitle::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -26,24 +26,18 @@ class BusinessEntityResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        ->schema([
+            TextInput::make('title')
+                ->required()
+                ->maxLength(255),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->translateLabel(),
-                TextColumn::make('created_at')
-                    ->translateLabel()
-                    ->dateTime(),
-                TextColumn::make('updated_at')
-                    ->translateLabel()
-                    ->dateTime(),
+                TextColumn::make('title'),
             ])
             ->filters([
                 //
@@ -62,17 +56,17 @@ class BusinessEntityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageBusinessEntities::route('/'),
+            'index' => Pages\ManageJobTitles::route('/'),
         ];
     }
 
     public static function getModelLabel(): string
     {
-        return __('Business Entity');
+        return __('Job Title');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('Business Entities');
+        return __('Job Titles');
     }
 }

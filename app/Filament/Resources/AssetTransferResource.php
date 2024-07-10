@@ -2,34 +2,35 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BusinessEntityResource\Pages;
-use App\Filament\Resources\BusinessEntityResource\RelationManagers;
-use App\Models\BusinessEntity;
+use App\Filament\Resources\AssetTransferResource\Pages;
+use App\Filament\Resources\AssetTransferResource\RelationManagers;
+use App\Models\AssetTransfer;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BusinessEntityResource extends Resource
+class AssetTransferResource extends Resource
 {
-    protected static ?string $model = BusinessEntity::class;
+    protected static ?string $model = AssetTransfer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $navigationGroup = 'Master Data';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required()
+                TextInput::make('letter_number')
+                    ->translateLabel('Letter Number')
                     ->maxLength(255),
+                Select::make('asset_id')
+                    ->translateLabel('Asset')
+                    ->relationship('asset', 'name')
             ]);
     }
 
@@ -37,13 +38,7 @@ class BusinessEntityResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->translateLabel(),
-                TextColumn::make('created_at')
-                    ->translateLabel()
-                    ->dateTime(),
-                TextColumn::make('updated_at')
-                    ->translateLabel()
-                    ->dateTime(),
+                //
             ])
             ->filters([
                 //
@@ -62,17 +57,7 @@ class BusinessEntityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageBusinessEntities::route('/'),
+            'index' => Pages\ManageAssetTransfers::route('/'),
         ];
-    }
-
-    public static function getModelLabel(): string
-    {
-        return __('Business Entity');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return __('Business Entities');
     }
 }

@@ -13,22 +13,18 @@ return new class extends Migration
     {
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            $table->string('letter_number')->nullable();
             $table->date('purchase_date')->nullable();
-            $table->foreignId('business_entity_id')->constrained()->onDelete('cascade');
-            $table->string('item_name')->nullable();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('brand')->nullable();
+            $table->foreignId('business_entity_id')->nullable()->constrained('business_entities')->nullOnDelete();
+            $table->string('name');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignId('brand_id')->nullable()->constrained('brands')->nullOnDelete();
             $table->string('type')->nullable();
             $table->string('serial_number')->nullable();
             $table->string('imei1')->nullable();
             $table->string('imei2')->nullable();
             $table->decimal('item_price', 15, 2)->nullable();
-            $table->string('inventory_holder_name')->nullable();
-            $table->string('inventory_holder_position')->nullable();
-            $table->string('item_location')->nullable();
-            $table->string('status')->nullable();
-            $table->string('upload_bast')->nullable();
+            $table->foreignId('asset_location_id')->nullable()->constrained('asset_locations')->nullOnDelete();
+            $table->enum('status', ['instock', 'transfer'])->default('instock');
             $table->timestamps();
         });
     }
