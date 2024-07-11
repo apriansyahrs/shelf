@@ -19,7 +19,7 @@ class BusinessEntityResource extends Resource
 {
     protected static ?string $model = BusinessEntity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static ?string $navigationGroup = 'Master Data';
 
@@ -30,6 +30,9 @@ class BusinessEntityResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                TextInput::make('format')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 
@@ -38,6 +41,7 @@ class BusinessEntityResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->translateLabel(),
+                TextColumn::make('format')->translateLabel(),
                 TextColumn::make('created_at')
                     ->translateLabel()
                     ->dateTime(),

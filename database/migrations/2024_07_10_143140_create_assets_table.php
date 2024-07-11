@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('serial_number')->nullable();
             $table->string('imei1')->nullable();
             $table->string('imei2')->nullable();
-            $table->decimal('item_price', 15, 2)->nullable();
+            $table->bigInteger('item_price')->nullable();
             $table->foreignId('asset_location_id')->nullable()->constrained('asset_locations')->nullOnDelete();
-            $table->enum('status', ['instock', 'transfer'])->default('instock');
+            $table->boolean('is_available')->default(true);
             $table->timestamps();
         });
     }

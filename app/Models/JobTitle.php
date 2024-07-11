@@ -12,8 +12,10 @@ class JobTitle extends Model
 
     protected $fillable = ['title'];
 
-    public function assets(): HasMany
+    // Relasi ke tabel users
+    public function users()
     {
-        return $this->hasMany(Asset::class);
+        return $this->hasMany(AssetTransfer::class);
     }
+
 }

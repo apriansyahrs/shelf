@@ -13,7 +13,7 @@ class Asset extends Model
     protected $fillable = [
         'purchase_date',
         'business_entity_id',
-        'item_name',
+        'name',
         'category_id',
         'brand_id',
         'type',
@@ -22,7 +22,7 @@ class Asset extends Model
         'imei2',
         'item_price',
         'asset_location_id',
-        'status',
+        'is_available',
     ];
     // Relasi ke tabel business_entities
     public function businessEntity()

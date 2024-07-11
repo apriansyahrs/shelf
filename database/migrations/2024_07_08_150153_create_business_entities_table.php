@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('business_entities', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string('format')->nullable();
             $table->timestamps();
         });
     }

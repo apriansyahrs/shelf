@@ -4,9 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\BusinessEntity;
+use App\Models\JobTitle;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,7 +18,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -32,19 +37,33 @@ class UserResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Select::make('business_entity_id')
+                    ->options(BusinessEntity::all()->pluck('name', 'id'))
+                    ->label('Business Entity')
+                    ->searchable(),
+                Select::make('job_title_id')
+                    ->options(JobTitle::all()->pluck('title', 'id'))
+                    ->label('Job Title')
+                    ->searchable(),
                 TextInput::make('username')
-                    ->required()
+                    // ->required()
                     ->maxLength(255),
                 TextInput::make('email')
-                    ->required()
+                    // ->required()
                     ->maxLength(255),
                 TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
-                    ->required(fn (string $context): bool => $context === 'create')
+                    // ->required(fn (string $context): bool => $context === 'create')
                     ->maxLength(255),
-                DateTimePicker::make('email_verified_at'),
+                DateTimePicker::make('email_verified_at')
+                    ->label('Email Verified At'),
+                Select::make('roles')
+                    ->label('Roles')
+                    ->options(Role::all()->pluck('name', 'id')->toArray())
+                    ->searchable()
+                    ->visible(fn () => Auth::user()->hasRole('super_admin')),
             ]);
     }
 

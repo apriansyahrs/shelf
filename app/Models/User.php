@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -28,6 +29,8 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'email_verified_at',
+        'business_entity_id',
+        'job_title_id',
     ];
 
     /**
@@ -53,5 +56,15 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasVerifiedEmail();
+    }
+
+    public function businessEntity(): BelongsTo
+    {
+        return $this->belongsTo(BusinessEntity::class);
+    }
+
+    public function jobTitle(): BelongsTo
+    {
+        return $this->belongsTo(JobTitle::class);
     }
 }

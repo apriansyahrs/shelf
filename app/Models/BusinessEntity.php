@@ -10,10 +10,22 @@ class BusinessEntity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'format'];
 
     public function assets(): HasMany
     {
         return $this->hasMany(Asset::class);
+    }
+
+    // Relasi ke tabel asset_transfers
+    public function assetTransfers()
+    {
+        return $this->hasMany(AssetTransfer::class);
+    }
+
+    // Relasi ke tabel users
+    public function users()
+    {
+        return $this->hasMany(AssetTransfer::class);
     }
 }

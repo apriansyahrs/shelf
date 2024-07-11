@@ -10,7 +10,7 @@ class AssetTransfer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['letter_number', 'asset_id', 'from_user_id', 'to_user_id', 'upload_bast'];
+    protected $fillable = ['business_entity_id', 'letter_number', 'from_user_id', 'to_user_id', 'upload_bast'];
 
     // Relasi ke tabel assets
     public function asset()
@@ -28,5 +28,11 @@ class AssetTransfer extends Model
     public function toUser()
     {
         return $this->belongsTo(User::class, 'to_user_id');
+    }
+
+    // Relasi ke tabel asset_transfer_details
+    public function details(): HasMany
+    {
+        return $this->hasMany(AssetTransferDetail::class);
     }
 }

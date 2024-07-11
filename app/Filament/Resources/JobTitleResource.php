@@ -19,7 +19,7 @@ class JobTitleResource extends Resource
 {
     protected static ?string $model = JobTitle::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
     protected static ?string $navigationGroup = 'Master Data';
 

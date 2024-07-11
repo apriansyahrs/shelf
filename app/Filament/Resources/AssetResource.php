@@ -3,17 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
-use App\Filament\Resources\AssetResource\RelationManagers;
 use App\Models\Asset;
+use App\Models\BusinessEntity;
 use App\Models\Category;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +22,7 @@ class AssetResource extends Resource
 {
     protected static ?string $model = Asset::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
     public static function getCategoryOptions()
     {
@@ -52,7 +51,7 @@ class AssetResource extends Resource
                     ->translateLabel('Business Entity')
                     ->relationship('businessEntity', 'name')
                     ->required(),
-                TextInput::make('item_name')
+                TextInput::make('name')
                     ->translateLabel('Item Name')
                     ->required()
                     ->maxLength(255),
@@ -91,8 +90,17 @@ class AssetResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('purchase_date')->translateLabel('Purchase Date')->date()->sortable(),
-                TextColumn::make('businessEntity.name')->translateLabel('Business Entity')->sortable()->searchable(),
-                TextColumn::make('item_name')->translateLabel('Item Name')->sortable()->searchable(),
+                TextColumn::make('businessEntity.name') // Mengambil nama dari relasi businessEntity
+                    ->label('Business Entity')
+                    -> badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'CV.CS' => 'gray',
+                        'MKLI' => 'warning',
+                        'MAJU' => 'success',
+                        'RISM' => 'danger',
+                        '5' => 'danger',
+                    }),
+                TextColumn::make('name')->translateLabel('Item Name')->sortable()->searchable(),
                 TextColumn::make('category.name')->translateLabel('Category')->sortable(),
                 TextColumn::make('brand.name')->translateLabel('Brand')->sortable()->searchable(),
                 TextColumn::make('type')->translateLabel('Type')->sortable()->searchable(),
@@ -100,8 +108,13 @@ class AssetResource extends Resource
                 TextColumn::make('imei1')->translateLabel('IMEI 1')->sortable()->searchable(),
                 TextColumn::make('imei2')->translateLabel('IMEI 2')->sortable()->searchable(),
                 TextColumn::make('item_price')->translateLabel('Item Price')->sortable()->money('IDR', true),
+                TextColumn::make('item_age')->translateLabel('Item Price')->sortable(),
                 TextColumn::make('assetLocation.name')->translateLabel('Item Location')->sortable()->searchable(),
-                TextColumn::make('status')->translateLabel('Status')->sortable()->searchable(),
+                TextColumn::make('is_available')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => $state ? 'success' : 'warning')
+                    ->formatStateUsing(fn (string $state): string => $state ? 'Tersedia' : 'Transfer'),
             ])
             ->filters([
                 //
