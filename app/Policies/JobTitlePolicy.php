@@ -63,7 +63,7 @@ class JobTitlePolicy
      */
     public function forceDelete(User $user, JobTitle $jobTitle): bool
     {
-        return $user->can('force_delete_job::title');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class JobTitlePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_job::title');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class JobTitlePolicy
      */
     public function restore(User $user, JobTitle $jobTitle): bool
     {
-        return $user->can('restore_job::title');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class JobTitlePolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_job::title');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class JobTitlePolicy
      */
     public function replicate(User $user, JobTitle $jobTitle): bool
     {
-        return $user->can('replicate_job::title');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class JobTitlePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_job::title');
+        return $user->can('{{ Reorder }}');
     }
 }

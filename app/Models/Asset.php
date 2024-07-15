@@ -23,7 +23,10 @@ class Asset extends Model
         'item_price',
         'asset_location_id',
         'is_available',
+        'recipient_id',
+        'recipient_business_entity_id',
     ];
+
     // Relasi ke tabel business_entities
     public function businessEntity()
     {
@@ -52,6 +55,24 @@ class Asset extends Model
     public function assetTransfers()
     {
         return $this->hasMany(AssetTransfer::class);
+    }
+
+    // Relasi ke tabel asset_transfer_details
+    public function assetTransferDetails()
+    {
+        return $this->hasMany(AssetTransferDetail::class);
+    }
+
+    // Relasi ke tabel users untuk recipient_id
+    public function recipient()
+    {
+        return $this->belongsTo(User::class, 'recipient_id');
+    }
+
+    // Relasi ke tabel business_entities untuk recipient_business_entity_id
+    public function recipientBusinessEntity()
+    {
+        return $this->belongsTo(BusinessEntity::class, 'recipient_business_entity_id');
     }
 
     private function formatDiff($value, $unit)

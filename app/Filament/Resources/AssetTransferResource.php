@@ -3,9 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetTransferResource\Pages;
-use App\Filament\Resources\AssetTransferResource\RelationManagers;
+use App\Models\Asset;
 use App\Models\AssetTransfer;
 use App\Models\BusinessEntity;
+use App\Models\JobTitle;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
@@ -18,12 +19,10 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AssetTransferResource extends Resource
 {
     protected static ?string $model = AssetTransfer::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
 
     public static function form(Form $form): Form
@@ -33,7 +32,7 @@ class AssetTransferResource extends Resource
                 Card::make()
                     ->schema([
                         Select::make('business_entity_id')
-                            ->label('Business Entity')
+                            ->translateLabel()
                             ->options(BusinessEntity::all()->pluck('name', 'id'))
                             ->required()
                             ->reactive()
@@ -43,42 +42,114 @@ class AssetTransferResource extends Resource
                             ))
                             ->columns(6),
                         TextInput::make('letter_number')
-                            ->label('Letter Number')
+                            ->translateLabel()
                             ->columns(6)
                             ->extraInputAttributes(['readonly' => true]),
-                            Select::make('from_user_id')
+                        Select::make('from_user_id')
                             ->relationship('fromUser', 'name')
                             ->required()
-                            ->label('From User')
+                            ->translateLabel()
                             ->reactive()
-                            ->afterStateUpdated(fn ($state, callable $set) => $set('to_user_id', null)),
+                            ->searchable()
+                            ->options(function () {
+                                return User::whereDoesntHave('roles', function ($query) {
+                                    $query->where('name', 'super_admin');
+                                })->pluck('name', 'id');
+                            })
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                $set('to_user_id', null);
+                                $set('details', null);
+
+                                // Update the asset_id options based on the new from_user_id
+                                $fromUserId = $get('from_user_id');
+                                $assets = Asset::query();
+                                $details = [];
+
+                                if ($fromUserId) {
+                                    $user = User::find($fromUserId);
+                                    if ($user && $user->hasRole('general_affair')) {
+                                        // If the user has 'general_affair' role, only select available assets
+                                        $assets->where('is_available', 1);
+                                        $details = [['asset_id' => '', 'equipment' => '']]; // reset the details repeater with one empty entry
+                                    } else {
+                                        // If the user does not have 'general_affair' role, restrict to assets with recipient_id = from_user_id
+                                        $assets->where('recipient_id', $fromUserId);
+                                        $details = $assets->get()->map(function ($asset) {
+                                            return ['asset_id' => $asset->id, 'equipment' => ''];
+                                        })->toArray();
+                                    }
+                                }
+
+                                $set('details', $details);
+                            }),
                         Select::make('to_user_id')
-                            ->label('To User')
+                            ->translateLabel()
                             ->options(function (callable $get) {
                                 $fromUserId = $get('from_user_id');
-                                return User::where('id', '!=', $fromUserId)->pluck('name', 'id');
+                                return User::where('id', '!=', $fromUserId)
+                                    ->whereDoesntHave('roles', function ($query) {
+                                        $query->where('name', 'super_admin');
+                                    })
+                                    ->pluck('name', 'id');
                             })
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->translateLabel()
+                                    ->required()
+                                    ->maxLength(255),
+                                Select::make('business_entity_id')
+                                    ->options(BusinessEntity::all()->pluck('name', 'id'))
+                                    ->translateLabel()
+                                    ->searchable(),
+                                Select::make('job_title_id')
+                                    ->options(JobTitle::all()->pluck('title', 'id'))
+                                    ->translateLabel()
+                                    ->searchable(),
+                            ])->columns(2)
+                            ->searchable()
                             ->required(),
                     ])
-                    ->columns(2), // Set columns to 2 to make the layout more compact and user-friendly
-                Card::make()
+                    ->columns(2),
+                Repeater::make('details')
+                    ->relationship('details')
                     ->schema([
-                        Repeater::make('details')
-                            ->relationship('details')
-                            ->schema([
-                                Select::make('asset_id')
-                                    ->relationship('asset', 'name')
-                                    ->required()
-                                    ->label('Asset'),
-                                TextInput::make('equipment')
-                                    ->required()
-                                    ->label('Equipment'),
-                            ])
-                            ->columns(2) // Set columns to 2 to make the repeater more compact
-                            ->label('Asset Transfer Details')
-                            ->required(),
+                        Select::make('asset_id')
+                            ->reactive()
+                            ->required()
+                            ->translateLabel()
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $fromUserId = $get('../../from_user_id');
+                                $selectedAssets = collect($get('../../details'))->pluck('asset_id')->filter()->all();
+                                $query = Asset::query();
+
+                                if ($fromUserId) {
+                                    $user = User::find($fromUserId);
+                                    if ($user && $user->hasRole('general_affair')) {
+                                        $query->where('is_available', 1);
+                                    } else {
+                                        $query->where('recipient_id', $fromUserId);
+                                    }
+                                }
+
+                                // Exclude already selected assets
+                                if (!empty($selectedAssets)) {
+                                    $query->whereNotIn('id', $selectedAssets);
+                                }
+
+                                return $query->pluck('name', 'id')->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value) {
+                                return Asset::find($value)?->name;
+                            }),
+                        TextInput::make('equipment')
+                            ->translateLabel(),
                     ])
-                    ->columns(1), // Set columns to 1 to keep the repeater in a single card
+                    ->columns(2)
+                    ->translateLabel()
+                    ->required()
+                    ->hidden(fn (callable $get) => !$get('from_user_id')) // Hide the repeater when from_user_id is not selected
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -86,15 +157,38 @@ class AssetTransferResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('letter_number')->label('Letter Number'),
-                TextColumn::make('fromUser.name')->label('From User'),
-                TextColumn::make('toUser.name')->label('To User'),
-                TextColumn::make('created_at')->label('Created At')->dateTime(),
+                TextColumn::make('letter_number')
+                    ->translateLabel()
+                    ->badge(),
+                TextColumn::make('fromUser.name')
+                    ->translateLabel()
+                    ->badge()
+                    ->color('danger')
+                    ->searchable(),
+                TextColumn::make('toUser.name')
+                    ->translateLabel()
+                    ->badge()
+                    ->color('success')
+                    ->searchable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'Serah Terima',
+                        'success' => 'Pengalihan Aset',
+                        'danger' => 'Pengembalian Aset',
+                        'secondary' => 'Unknown Status',
+                    ])
+                    ->getStateUsing(function ($record) {
+                        return $record->status;
+                    }),
+                TextColumn::make('created_at')->translateLabel()->dateTime(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -120,7 +214,6 @@ class AssetTransferResource extends Resource
         ];
     }
 
-
     private static function generateLetterNumber(?BusinessEntity $businessEntity, $newNumber = null): string
     {
         if (!$businessEntity) {
@@ -135,10 +228,12 @@ class AssetTransferResource extends Resource
                 ->orderBy('created_at', 'desc')
                 ->first();
 
-            $lastNumber = $lastTransfer ? (int) filter_var($lastTransfer->letter_number, FILTER_SANITIZE_NUMBER_INT) : 0;
+            // Extract the numeric part from the last letter number
+            $lastNumber = $lastTransfer ? (int) preg_replace('/\D/', '', substr($lastTransfer->letter_number, -6)) : 0;
             $newNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
         }
 
+        // Generate the new letter number
         return "{$format}{$newNumber}";
     }
 }

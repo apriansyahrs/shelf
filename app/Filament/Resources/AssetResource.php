@@ -3,10 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
+use App\Filament\Resources\AssetResource\RelationManagers\AssetTransfersRelationManager;
 use App\Models\Asset;
+use App\Models\AssetLocation;
+use App\Models\Brand;
 use App\Models\BusinessEntity;
 use App\Models\Category;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -44,72 +50,112 @@ class AssetResource extends Resource
     {
         return $form
             ->schema([
-                DatePicker::make('purchase_date')
-                    ->translateLabel('Purchase Date')
-                    ->required(),
-                Select::make('business_entity_id')
-                    ->translateLabel('Business Entity')
-                    ->relationship('businessEntity', 'name')
-                    ->required(),
-                TextInput::make('name')
-                    ->translateLabel('Item Name')
-                    ->required()
-                    ->maxLength(255),
-                Select::make('category_id')
-                    ->translateLabel('Category')
-                    ->options(self::getCategoryOptions())
-                    ->searchable()
-                    ->required(),
-                Select::make('brand_id')
-                    ->translateLabel('Brand')
-                    ->relationship('brand', 'name')
-                    ->required(),
-                TextInput::make('type')
-                    ->translateLabel('Type')
-                    ->maxLength(255),
-                TextInput::make('serial_number')
-                    ->translateLabel('Serial Number')
-                    ->maxLength(255),
-                TextInput::make('imei1')
-                    ->translateLabel('IMEI 1')
-                    ->maxLength(255),
-                TextInput::make('imei2')
-                    ->translateLabel('IMEI 2')
-                    ->maxLength(255),
-                TextInput::make('item_price')
-                    ->translateLabel('Item Price')
-                    ->numeric(),
-                Select::make('asset_location_id')
-                    ->translateLabel('Item Location')
-                    ->relationship('assetLocation', 'name'),
-            ]);
+                Grid::make(2)
+                    ->schema([
+                        // Kolom kiri
+                        Card::make()
+                            ->schema([
+                                Select::make('category_id')
+                                    ->translateLabel()
+                                    ->options(self::getCategoryOptions())
+                                    ->searchable()
+                                    ->required(),
+                                Select::make('brand_id')
+                                    ->translateLabel()
+                                    ->options(Brand::all()->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->required()
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->required(),
+                                    ]),
+                                TextInput::make('type')
+                                    ->translateLabel()
+                                    ->maxLength(255),
+                                TextInput::make('name')
+                                    ->translateLabel('Nama')
+                                    ->required()
+                                    ->maxLength(255),
+                            ])
+                            ->columns(2),
+
+                        Card::make()
+                            ->schema([
+                                TextInput::make('serial_number')
+                                    ->translateLabel()
+                                    ->maxLength(255),
+                                TextInput::make('imei1')
+                                    ->translateLabel()
+                                    ->maxLength(255),
+                                TextInput::make('imei2')
+                                    ->translateLabel()
+                                    ->maxLength(255),
+                            ])
+                            ->columns(3),
+                    ])
+                    ->columnSpan(2),
+
+                // Kolom kanan
+                Card::make()
+                    ->schema([
+                        DatePicker::make('purchase_date')
+                            ->translateLabel()
+                            ->required(),
+                        Select::make('business_entity_id')
+                            ->translateLabel()
+                            ->options(BusinessEntity::orderBy('name')->pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                        TextInput::make('item_price')
+                            ->translateLabel()
+                            ->numeric(),
+                        Select::make('asset_location_id')
+                            ->translateLabel()
+                            ->options(AssetLocation::orderBy('name')->pluck('name', 'id'))
+                            ->searchable()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->translateLabel()
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('address')
+                                    ->translateLabel()
+                                    ->maxLength(255),
+                                TextInput::make('description')
+                                    ->translateLabel()
+                                    ->maxLength(255),
+                            ]),
+                    ])
+                    ->columns(1)
+                    ->columnSpan(1),
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('purchase_date')->translateLabel('Purchase Date')->date()->sortable(),
+                TextColumn::make('purchase_date')->translateLabel()->date()->sortable(),
                 TextColumn::make('businessEntity.name') // Mengambil nama dari relasi businessEntity
-                    ->label('Business Entity')
-                    -> badge()
+                    ->translateLabel()
+                    ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'CV.CS' => 'gray',
                         'MKLI' => 'warning',
                         'MAJU' => 'success',
                         'RISM' => 'danger',
-                        '5' => 'danger',
+                        'TOP' => 'danger',
                     }),
-                TextColumn::make('name')->translateLabel('Item Name')->sortable()->searchable(),
-                TextColumn::make('category.name')->translateLabel('Category')->sortable(),
-                TextColumn::make('brand.name')->translateLabel('Brand')->sortable()->searchable(),
-                TextColumn::make('type')->translateLabel('Type')->sortable()->searchable(),
-                TextColumn::make('serial_number')->translateLabel('Serial Number')->sortable()->searchable(),
-                TextColumn::make('imei1')->translateLabel('IMEI 1')->sortable()->searchable(),
-                TextColumn::make('imei2')->translateLabel('IMEI 2')->sortable()->searchable(),
-                TextColumn::make('item_price')->translateLabel('Item Price')->sortable()->money('IDR', true),
-                TextColumn::make('item_age')->translateLabel('Item Price')->sortable(),
-                TextColumn::make('assetLocation.name')->translateLabel('Item Location')->sortable()->searchable(),
+                TextColumn::make('name')->translateLabel()->sortable()->searchable(),
+                TextColumn::make('category.name')->translateLabel()->sortable(),
+                TextColumn::make('brand.name')->translateLabel()->sortable()->searchable(),
+                TextColumn::make('type')->translateLabel()->sortable()->searchable(),
+                TextColumn::make('serial_number')->translateLabel()->sortable()->searchable(),
+                TextColumn::make('imei1')->translateLabel()->sortable()->searchable(),
+                TextColumn::make('imei2')->translateLabel()->sortable()->searchable(),
+                TextColumn::make('item_price')->translateLabel()->sortable()->money('IDR', true),
+                TextColumn::make('item_age')->translateLabel()->sortable(),
+                TextColumn::make('assetLocation.name')->translateLabel()->sortable()->searchable(),
                 TextColumn::make('is_available')
                     ->label('Status')
                     ->badge()
@@ -120,6 +166,7 @@ class AssetResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -132,7 +179,7 @@ class AssetResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AssetTransfersRelationManager::class,
         ];
     }
 
@@ -142,6 +189,7 @@ class AssetResource extends Resource
             'index' => Pages\ListAssets::route('/'),
             'create' => Pages\CreateAsset::route('/create'),
             'edit' => Pages\EditAsset::route('/{record}/edit'),
+            'view' => Pages\ViewAsset::route('/{record}'),
         ];
     }
 

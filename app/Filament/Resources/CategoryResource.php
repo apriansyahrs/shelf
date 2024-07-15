@@ -31,10 +31,11 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->translateLabel()
                     ->required()
                     ->maxLength(255),
                 Select::make('parent_id')
-                    ->label('Parent Category')
+                    ->translateLabel()
                     ->options(Category::whereNull('parent_id')->pluck('name', 'id'))
                     ->nullable()
                     ->searchable(),

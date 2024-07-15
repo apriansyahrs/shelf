@@ -63,7 +63,7 @@ class AssetLocationPolicy
      */
     public function forceDelete(User $user, AssetLocation $assetLocation): bool
     {
-        return $user->can('force_delete_asset::location');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class AssetLocationPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_asset::location');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class AssetLocationPolicy
      */
     public function restore(User $user, AssetLocation $assetLocation): bool
     {
-        return $user->can('restore_asset::location');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class AssetLocationPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_asset::location');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class AssetLocationPolicy
      */
     public function replicate(User $user, AssetLocation $assetLocation): bool
     {
-        return $user->can('replicate_asset::location');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class AssetLocationPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_asset::location');
+        return $user->can('{{ Reorder }}');
     }
 }

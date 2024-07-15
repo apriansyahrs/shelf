@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Filament\Resources\AssetResource\RelationManagers;
+
+use App\Models\AssetTransfer;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class AssetTransfersRelationManager extends RelationManager
+{
+    protected static string $relationship = 'assetTransferDetails';
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                TextInput::make('assetTransfer.letter_number'),
+                TextInput::make('assetTransfer.fromUser.name'),
+                TextInput::make('assetTransfer.toUser.name'),
+            ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->recordTitleAttribute('letter_number')
+            ->columns([
+                TextColumn::make('assetTransfer.letter_number')
+                    ->translateLabel()
+                    ->badge(),
+                TextColumn::make('assetTransfer.fromUser.name')
+                    ->translateLabel()
+                    ->badge()
+                    ->color('danger'),
+                TextColumn::make('assetTransfer.toUser.name')
+                    ->translateLabel()
+                    ->badge()
+                    ->color('success'),
+                TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'Serah Terima',
+                        'success' => 'Pengalihan Aset',
+                        'danger' => 'Pengembalian Aset',
+                        'secondary' => 'Unknown Status',
+                    ])
+                    ->getStateUsing(function ($record) {
+                        return $record->assetTransfer->status;
+                    }),
+                TextColumn::make('assetTransfer.created_at')
+                    ->date()
+                    ->label(__('Created at')),
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->filters([
+                //
+            ])
+            ->headerActions([
+                // Tables\Actions\CreateAction::make(),
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}

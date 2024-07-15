@@ -40,7 +40,16 @@ class BusinessEntityResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->translateLabel(),
+                TextColumn::make('name')
+                    ->translateLabel('Business Entity')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'CV.CS' => 'gray',
+                        'MKLI' => 'warning',
+                        'MAJU' => 'success',
+                        'RISM' => 'danger',
+                        'TOP' => 'danger',
+                    }),
                 TextColumn::make('format')->translateLabel(),
                 TextColumn::make('created_at')
                     ->translateLabel()

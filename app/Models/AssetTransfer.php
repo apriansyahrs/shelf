@@ -10,7 +10,13 @@ class AssetTransfer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['business_entity_id', 'letter_number', 'from_user_id', 'to_user_id', 'upload_bast'];
+    protected $fillable = [
+        'business_entity_id',
+        'letter_number',
+        'from_user_id',
+        'to_user_id',
+        'upload_bast'
+    ];
 
     // Relasi ke tabel assets
     public function asset()
@@ -34,5 +40,35 @@ class AssetTransfer extends Model
     public function details(): HasMany
     {
         return $this->hasMany(AssetTransferDetail::class);
+    }
+
+    public function scopeGeneralAffair($query)
+    {
+        return $query->whereHas('roles', function ($q) {
+            $q->where('name', 'general_affair');
+        });
+    }
+
+    // Metode untuk menghitung status
+    public function getStatusAttribute()
+    {
+        $this->loadMissing('fromUser.roles', 'toUser.roles');
+
+        $fromUser = $this->fromUser;
+        $toUser = $this->toUser;
+
+        if ($fromUser && $fromUser->hasRole('general_affair') && !$toUser->hasRole('general_affair')) {
+            return 'Serah Terima';
+        }
+
+        if ($fromUser && !$fromUser->hasRole('general_affair') && !$toUser->hasRole('general_affair')) {
+            return 'Pengalihan Aset';
+        }
+
+        if ($fromUser && !$fromUser->hasRole('general_affair') && $toUser->hasRole('general_affair')) {
+            return 'Pengembalian Aset';
+        }
+
+        return 'Unknown Status';
     }
 }

@@ -10,7 +10,7 @@ class AssetTransferDetail extends Model
     use HasFactory;
 
     protected $fillable = [
-        'transfer_id',
+        'asset_transfer_id',
         'asset_id',
         'equipment',
     ];

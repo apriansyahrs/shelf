@@ -63,7 +63,7 @@ class BusinessEntityPolicy
      */
     public function forceDelete(User $user, BusinessEntity $businessEntity): bool
     {
-        return $user->can('force_delete_business::entity');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class BusinessEntityPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_business::entity');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class BusinessEntityPolicy
      */
     public function restore(User $user, BusinessEntity $businessEntity): bool
     {
-        return $user->can('restore_business::entity');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class BusinessEntityPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_business::entity');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class BusinessEntityPolicy
      */
     public function replicate(User $user, BusinessEntity $businessEntity): bool
     {
-        return $user->can('replicate_business::entity');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class BusinessEntityPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_business::entity');
+        return $user->can('{{ Reorder }}');
     }
 }

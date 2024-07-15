@@ -25,6 +25,8 @@ return new class extends Migration
             $table->bigInteger('item_price')->nullable();
             $table->foreignId('asset_location_id')->nullable()->constrained('asset_locations')->nullOnDelete();
             $table->boolean('is_available')->default(true);
+            $table->foreignId('recipient_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('recipient_business_entity_id')->nullable()->constrained('business_entities')->nullOnDelete();
             $table->timestamps();
         });
     }
