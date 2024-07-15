@@ -10,6 +10,8 @@ use App\Models\JobTitle;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -30,87 +32,92 @@ class AssetTransferResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
+                Grid::make()
                     ->schema([
-                        Select::make('business_entity_id')
-                            ->translateLabel()
-                            ->options(BusinessEntity::all()->pluck('name', 'id'))
-                            ->required()
-                            ->reactive()
-                            ->afterStateUpdated(fn ($state, callable $set) => $set(
-                                'letter_number',
-                                self::generateLetterNumber(BusinessEntity::find($state), null)
-                            ))
-                            ->columns(6),
-                        TextInput::make('letter_number')
-                            ->translateLabel()
-                            ->columns(6)
-                            ->extraInputAttributes(['readonly' => true]),
-                        Select::make('from_user_id')
-                            ->relationship('fromUser', 'name')
-                            ->required()
-                            ->translateLabel()
-                            ->reactive()
-                            ->searchable()
-                            ->options(function () {
-                                return User::whereDoesntHave('roles', function ($query) {
-                                    $query->where('name', 'super_admin');
-                                })->pluck('name', 'id');
-                            })
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                $set('to_user_id', null);
-                                $set('details', null);
-
-                                // Update the asset_id options based on the new from_user_id
-                                $fromUserId = $get('from_user_id');
-                                $assets = Asset::query();
-                                $details = [];
-
-                                if ($fromUserId) {
-                                    $user = User::find($fromUserId);
-                                    if ($user && $user->hasRole('general_affair')) {
-                                        // If the user has 'general_affair' role, only select available assets
-                                        $assets->where('is_available', 1);
-                                        $details = [['asset_id' => '', 'equipment' => '']]; // reset the details repeater with one empty entry
-                                    } else {
-                                        // If the user does not have 'general_affair' role, restrict to assets with recipient_id = from_user_id
-                                        $assets->where('recipient_id', $fromUserId);
-                                        $details = $assets->get()->map(function ($asset) {
-                                            return ['asset_id' => $asset->id, 'equipment' => ''];
-                                        })->toArray();
-                                    }
-                                }
-
-                                $set('details', $details);
-                            }),
-                        Select::make('to_user_id')
-                            ->translateLabel()
-                            ->options(function (callable $get) {
-                                $fromUserId = $get('from_user_id');
-                                return User::where('id', '!=', $fromUserId)
-                                    ->whereDoesntHave('roles', function ($query) {
-                                        $query->where('name', 'super_admin');
-                                    })
-                                    ->pluck('name', 'id');
-                            })
-                            ->createOptionForm([
-                                TextInput::make('name')
+                        Card::make()
+                            ->schema([
+                                TextInput::make('letter_number')
                                     ->translateLabel()
-                                    ->required()
-                                    ->maxLength(255),
+                                    ->extraInputAttributes(['readonly' => true]),
                                 Select::make('business_entity_id')
+                                    ->translateLabel()
                                     ->options(BusinessEntity::all()->pluck('name', 'id'))
+                                    ->required()
+                                    ->reactive()
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set(
+                                        'letter_number',
+                                        self::generateLetterNumber(BusinessEntity::find($state), null)
+                                    )),
+                                Select::make('from_user_id')
+                                    ->relationship('fromUser', 'name')
+                                    ->required()
                                     ->translateLabel()
-                                    ->searchable(),
-                                Select::make('job_title_id')
-                                    ->options(JobTitle::all()->pluck('title', 'id'))
+                                    ->reactive()
+                                    ->searchable()
+                                    ->options(function () {
+                                        return User::whereDoesntHave('roles', function ($query) {
+                                            $query->where('name', 'super_admin');
+                                        })->pluck('name', 'id');
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $set('to_user_id', null);
+                                        $set('details', null);
+
+                                        // Update the asset_id options based on the new from_user_id
+                                        $fromUserId = $get('from_user_id');
+                                        $assets = Asset::query();
+                                        $details = [];
+
+                                        if ($fromUserId) {
+                                            $user = User::find($fromUserId);
+                                            if ($user && $user->hasRole('general_affair')) {
+                                                // If the user has 'general_affair' role, only select available assets
+                                                $assets->where('is_available', 1);
+                                                $details = [['asset_id' => '', 'equipment' => '']]; // reset the details repeater with one empty entry
+                                            } else {
+                                                // If the user does not have 'general_affair' role, restrict to assets with recipient_id = from_user_id
+                                                $assets->where('recipient_id', $fromUserId);
+                                                $details = $assets->get()->map(function ($asset) {
+                                                    return ['asset_id' => $asset->id, 'equipment' => ''];
+                                                })->toArray();
+                                            }
+                                        }
+
+                                        $set('details', $details);
+                                    }),
+                                Select::make('to_user_id')
                                     ->translateLabel()
-                                    ->searchable(),
-                            ])->columns(2)
-                            ->searchable()
-                            ->required(),
+                                    ->options(function (callable $get) {
+                                        $fromUserId = $get('from_user_id');
+                                        return User::where('id', '!=', $fromUserId)
+                                            ->whereDoesntHave('roles', function ($query) {
+                                                $query->where('name', 'super_admin');
+                                            })
+                                            ->pluck('name', 'id');
+                                    })
+                                    ->createOptionForm([
+                                        TextInput::make('name')
+                                            ->translateLabel()
+                                            ->required()
+                                            ->maxLength(255),
+                                        Select::make('business_entity_id')
+                                            ->options(BusinessEntity::all()->pluck('name', 'id'))
+                                            ->translateLabel()
+                                            ->searchable(),
+                                        Select::make('job_title_id')
+                                            ->options(JobTitle::all()->pluck('title', 'id'))
+                                            ->translateLabel()
+                                            ->searchable(),
+                                    ])
+                                    ->searchable()
+                                    ->required(),
+                            ])
+                            ->columnSpan(1),
+                        FileUpload::make('upload_bast')
+                            ->columnSpan(1),
                     ])
-                    ->columns(2),
+                    ->columns(1)
+                    ->columnSpan(1),
                 Repeater::make('details')
                     ->relationship('details')
                     ->schema([
@@ -146,12 +153,12 @@ class AssetTransferResource extends Resource
                         TextInput::make('equipment')
                             ->translateLabel(),
                     ])
-                    ->columns(2)
                     ->translateLabel()
                     ->required()
                     ->hidden(fn (callable $get) => !$get('from_user_id')) // Hide the repeater when from_user_id is not selected
-                    ->columnSpanFull(),
-            ]);
+                    ->columns(2)
+                    ->columnSpan(2),
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
