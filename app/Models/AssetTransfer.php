@@ -18,6 +18,12 @@ class AssetTransfer extends Model
         'upload_bast'
     ];
 
+    // Relasi ke tabel business_entities
+    public function businessEntity()
+    {
+        return $this->belongsTo(BusinessEntity::class);
+    }
+
     // Relasi ke tabel assets
     public function asset()
     {
@@ -58,15 +64,15 @@ class AssetTransfer extends Model
         $toUser = $this->toUser;
 
         if ($fromUser && $fromUser->hasRole('general_affair') && !$toUser->hasRole('general_affair')) {
-            return 'Serah Terima';
+            return 'BERITA ACARA SERAH TERIMA';
         }
 
         if ($fromUser && !$fromUser->hasRole('general_affair') && !$toUser->hasRole('general_affair')) {
-            return 'Pengalihan Aset';
+            return 'BERITA ACARA PENGALIHAN BARANG';
         }
 
         if ($fromUser && !$fromUser->hasRole('general_affair') && $toUser->hasRole('general_affair')) {
-            return 'Pengembalian Aset';
+            return 'BERITA ACARA PENGEMBALIAN BARANG';
         }
 
         return 'Unknown Status';

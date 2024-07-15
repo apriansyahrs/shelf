@@ -17,6 +17,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -157,6 +158,27 @@ class AssetTransferResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('businessEntity.name') // Mengambil nama dari relasi businessEntity
+                    ->translateLabel()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'CV.CS' => 'gray',
+                        'MKLI' => 'warning',
+                        'MAJU' => 'success',
+                        'RISM' => 'danger',
+                        'TOP' => 'danger',
+                    }),
+                TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'BERITA ACARA SERAH TERIMA',
+                        'success' => 'BERITA ACARA PENGALIHAN BARANG',
+                        'danger' => 'BERITA ACARA PENGEMBALIAN BARANG',
+                        'secondary' => 'Unknown Status',
+                    ])
+                    ->getStateUsing(function ($record) {
+                        return $record->status;
+                    }),
                 TextColumn::make('letter_number')
                     ->translateLabel()
                     ->badge(),
@@ -170,22 +192,12 @@ class AssetTransferResource extends Resource
                     ->badge()
                     ->color('success')
                     ->searchable(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->colors([
-                        'primary' => 'Serah Terima',
-                        'success' => 'Pengalihan Aset',
-                        'danger' => 'Pengembalian Aset',
-                        'secondary' => 'Unknown Status',
-                    ])
-                    ->getStateUsing(function ($record) {
-                        return $record->status;
-                    }),
+
                 TextColumn::make('created_at')->translateLabel()->dateTime(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('businessEntity')->relationship('businessEntity', 'name')->translateLabel(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

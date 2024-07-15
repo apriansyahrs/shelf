@@ -48,9 +48,9 @@ class AssetTransfersRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->badge()
                     ->colors([
-                        'primary' => 'Serah Terima',
-                        'success' => 'Pengalihan Aset',
-                        'danger' => 'Pengembalian Aset',
+                        'primary' => 'BERITA ACARA SERAH TERIMA',
+                        'success' => 'BERITA ACARA PENGALIHAN BARANG',
+                        'danger' => 'BERITA ACARA PENGEMBALIAN BARANG',
                         'secondary' => 'Unknown Status',
                     ])
                     ->getStateUsing(function ($record) {

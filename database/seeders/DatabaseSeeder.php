@@ -40,8 +40,8 @@ class DatabaseSeeder extends Seeder
             BusinessEntitySeeder::class,
             JobTitleSeeder::class,
             BrandSeeder::class,
-            AssetLocationSeeder::class,
-            AssetSeeder::class,
+            // AssetLocationSeeder::class,
+            // AssetSeeder::class,
         ]);
     }
 }
