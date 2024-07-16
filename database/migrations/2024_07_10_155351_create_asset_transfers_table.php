@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('from_user_id');
             $table->unsignedBigInteger('to_user_id');
             $table->timestamp('transfer_date')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->string('upload_bast')->nullable();
+            $table->string('document')->nullable();
 
             $table->foreign('business_entity_id')->references('id')->on('business_entities')->onDelete('cascade');
             $table->foreign('from_user_id')->references('id')->on('users')->onDelete('cascade');

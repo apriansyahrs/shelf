@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('admin');
 });
+
+Route::get('asset-transfer/{id}/download', [PdfController::class, 'downloadAssetTransfer'])->name('asset-transfer.download');

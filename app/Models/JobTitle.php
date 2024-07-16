@@ -15,7 +15,7 @@ class JobTitle extends Model
     // Relasi ke tabel users
     public function users()
     {
-        return $this->hasMany(AssetTransfer::class);
+        return $this->hasMany(User::class);
     }
 
 }

@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\AssetTransferResource\Pages;
 
 use App\Filament\Resources\AssetTransferResource;
+use App\Models\AssetTransfer;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
 class EditAssetTransfer extends EditRecord
@@ -30,6 +32,10 @@ class EditAssetTransfer extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+            Action::make('download')
+            ->label('Download PDF')
+            ->url(fn (AssetTransfer $record): string => route('asset-transfer.download', $record))
+            ->color('info'),
         ];
     }
 }

@@ -18,10 +18,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class AssetTransferResource extends Resource
 {
@@ -30,6 +32,9 @@ class AssetTransferResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $user = Auth::user();
+        $isSuperAdmin = $user->hasRole('super_admin');
+
         return $form
             ->schema([
                 Grid::make()
@@ -38,12 +43,14 @@ class AssetTransferResource extends Resource
                             ->schema([
                                 TextInput::make('letter_number')
                                     ->translateLabel()
+                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->extraInputAttributes(['readonly' => true]),
                                 Select::make('business_entity_id')
                                     ->translateLabel()
                                     ->options(BusinessEntity::all()->pluck('name', 'id'))
                                     ->required()
                                     ->reactive()
+                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->afterStateUpdated(fn ($state, callable $set) => $set(
                                         'letter_number',
                                         self::generateLetterNumber(BusinessEntity::find($state), null)
@@ -54,6 +61,7 @@ class AssetTransferResource extends Resource
                                     ->translateLabel()
                                     ->reactive()
                                     ->searchable()
+                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->options(function () {
                                         return User::whereDoesntHave('roles', function ($query) {
                                             $query->where('name', 'super_admin');
@@ -87,6 +95,7 @@ class AssetTransferResource extends Resource
                                     }),
                                 Select::make('to_user_id')
                                     ->translateLabel()
+                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->options(function (callable $get) {
                                         $fromUserId = $get('from_user_id');
                                         return User::where('id', '!=', $fromUserId)
@@ -109,23 +118,30 @@ class AssetTransferResource extends Resource
                                             ->translateLabel()
                                             ->searchable(),
                                     ])
+                                    ->createOptionUsing(function (array $data) {
+                                        // Create a new user with the provided data
+                                        return User::create($data);
+                                    })
                                     ->searchable()
                                     ->required(),
                             ])
                             ->columnSpan(1),
-                        FileUpload::make('upload_bast')
-                            ->columnSpan(1),
+                        FileUpload::make('document')
+                            ->columnSpan(1)
+                            ->hidden(fn ($context) => $context === 'create'),
                     ])
                     ->columns(1)
                     ->columnSpan(1),
                 Repeater::make('details')
                     ->relationship('details')
+                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
                     ->schema([
                         Select::make('asset_id')
                             ->reactive()
                             ->required()
                             ->translateLabel()
                             ->searchable()
+                            ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
                             ->options(function (callable $get) {
                                 $fromUserId = $get('../../from_user_id');
                                 $selectedAssets = collect($get('../../details'))->pluck('asset_id')->filter()->all();
@@ -151,7 +167,8 @@ class AssetTransferResource extends Resource
                                 return Asset::find($value)?->name;
                             }),
                         TextInput::make('equipment')
-                            ->translateLabel(),
+                            ->translateLabel()
+                            ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin),
                     ])
                     ->translateLabel()
                     ->required()
@@ -207,6 +224,10 @@ class AssetTransferResource extends Resource
                 SelectFilter::make('businessEntity')->relationship('businessEntity', 'name')->translateLabel(),
             ])
             ->actions([
+                Action::make('download')
+                    ->label('Download PDF')
+                    ->url(fn (AssetTransfer $record): string => route('asset-transfer.download', $record))
+                    ->color('success'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
