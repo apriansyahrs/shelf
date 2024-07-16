@@ -110,17 +110,23 @@ class AssetTransferResource extends Resource
                                             ->required()
                                             ->maxLength(255),
                                         Select::make('business_entity_id')
-                                            ->options(BusinessEntity::all()->pluck('name', 'id'))
+                                            ->options(BusinessEntity::all()->pluck('name', 'id')->toArray())
                                             ->translateLabel()
                                             ->searchable(),
                                         Select::make('job_title_id')
-                                            ->options(JobTitle::all()->pluck('title', 'id'))
+                                            ->options(JobTitle::all()->pluck('title', 'id')->toArray())
                                             ->translateLabel()
                                             ->searchable(),
                                     ])
                                     ->createOptionUsing(function (array $data) {
-                                        // Create a new user with the provided data
-                                        return User::create($data);
+                                        $user = User::create([
+                                            'name' => $data['name'],
+                                            'business_entity_id' => $data['business_entity_id'],
+                                            'job_title_id' => $data['job_title_id'],
+                                        ]);
+
+                                        // Return the ID of the newly created user
+                                        return $user->id;
                                     })
                                     ->searchable()
                                     ->required(),

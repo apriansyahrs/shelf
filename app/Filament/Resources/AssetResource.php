@@ -68,7 +68,16 @@ class AssetResource extends Resource
                                     ->createOptionForm([
                                         TextInput::make('name')
                                             ->required(),
-                                    ]),
+                                    ])
+                                    ->createOptionUsing(function ($data) {
+                                        // Create a new AssetLocation using the data from the form
+                                        $brand = Brand::create([
+                                            'name' => $data['name'],
+                                        ]);
+
+                                        // Return the ID of the newly created asset location
+                                        return $brand->id;
+                                    }),
                                 TextInput::make('type')
                                     ->translateLabel()
                                     ->maxLength(255),
