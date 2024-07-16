@@ -124,7 +124,18 @@ class AssetResource extends Resource
                                 TextInput::make('description')
                                     ->translateLabel()
                                     ->maxLength(255),
-                            ]),
+                            ])
+                            ->createOptionUsing(function ($data) {
+                                // Create a new AssetLocation using the data from the form
+                                $assetLocation = AssetLocation::create([
+                                    'name' => $data['name'],
+                                    'address' => $data['address'],
+                                    'description' => $data['description'],
+                                ]);
+
+                                // Return the ID of the newly created asset location
+                                return $assetLocation->id;
+                            }),
                     ])
                     ->columns(1)
                     ->columnSpan(1),
