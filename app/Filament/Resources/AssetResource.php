@@ -20,6 +20,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -179,11 +180,18 @@ class AssetResource extends Resource
                 TextColumn::make('is_available')
                     ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => $state ? 'success' : 'warning')
-                    ->formatStateUsing(fn (string $state): string => $state ? 'Tersedia' : 'Transfer'),
+                    ->color(fn (string $state): string => $state == 'Tersedia' ? 'success' : 'warning')
+                    ->formatStateUsing(fn (string $state): string => $state),
             ])
             ->filters([
-                //
+                SelectFilter::make('businessEntity')->relationship('businessEntity', 'name')->translateLabel(),
+                SelectFilter::make('is_available')
+                    ->translateLabel()
+                    ->options([
+                        '1' => 'Tersedia',
+                        '0' => 'Transfer',
+                    ])
+                    ->translateLabel(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

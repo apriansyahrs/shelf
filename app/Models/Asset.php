@@ -97,4 +97,9 @@ class Asset extends Model
             return $this->formatDiff($diffInDays, 'hari');
         }
     }
+
+    public function getIsAvailableAttribute($value)
+    {
+        return $value ? 'Tersedia' : 'Transfer';
+    }
 }
