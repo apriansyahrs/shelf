@@ -68,7 +68,7 @@ class UserResource extends Resource
                         ->visible($isSuperAdmin),
                     Select::make('roles')
                         ->label('Roles')
-                        ->options(Role::all()->pluck('name', 'id')->toArray())
+                        ->relationship('roles', 'name')
                         ->searchable()
                         ->visible($isSuperAdmin),
                 ])->visible($isSuperAdmin)
