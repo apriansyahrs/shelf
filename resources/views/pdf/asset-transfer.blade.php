@@ -4,35 +4,59 @@
     <title>{{ $assetTransfer->status }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Times New Roman', Times, serif;
+            margin: 40px;
+            line-height: 1.5;
         }
-        h1, h2 {
+        h1 {
             text-align: center;
+            font-size: 24px;
+            margin: 0px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 20px;
             margin-bottom: 20px;
         }
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 40px;
         }
         .header img {
             width: 150px;
-        }
-        .header div {
-            text-align: right;
-        }
-        .details, .table-container {
             margin-bottom: 20px;
         }
+        .details, .table-container {
+            margin-bottom: 30px;
+        }
         .details p {
-            margin: 5px 0;
+            margin: 0px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        .details-table, .signature-table {
+            width: 100%;
+            margin-bottom: 30px;
+            font-size: 16px;
+            border: none;
+        }
+        .details-table td, .signature-table td {
+            padding: 0px;
+            vertical-align: top;
+        }
+        .details-table td {
+            border: none;
+        }
+        .signature-table td {
+            text-align: center;
+            width: 33.33%;
+            border: none;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 16px;
         }
         table, th, td {
             border: 1px solid black;
@@ -41,60 +65,55 @@
             padding: 10px;
             text-align: left;
         }
-        .signature-table {
-            width: 100%;
-            margin-top: 50px;
-            border-collapse: collapse;
-        }
-        .signature-table td {
-            text-align: center;
-            vertical-align: top;
-            width: 33.33%;
-            border: none;
-        }
         .signature-table p {
             margin: 0;
         }
-        .footer {
-            text-align: center;
-            position: fixed;
-            bottom: 10px;
-            width: 100%;
+        .signature-space {
+            height: 80px; /* Menyesuaikan tinggi ruang untuk tanda tangan */
         }
     </style>
 </head>
 <body>
-    {{-- <div class="header">
+    <div class="header">
         <img src="path/to/logo.png" alt="Company Logo">
-        <div>
-            <h2>CV. MAJU TECNOLOGI</h2>
-            <p>Rukan Mangga Dua Square Blok H No. 18</p>
-            <p>Jl. Gunung Sahari Raya No.1</p>
-            <p>Kel. Ancol / Kec. Pademangan, Kota Jakarta Utara, DKI Jakarta 14430</p>
-        </div>
-    </div> --}}
+    </div>
 
     <h1>{{ $assetTransfer->status }}</h1>
     <h2>Nomor: {{ $assetTransfer->letter_number }}</h2>
 
     <div class="details">
-        <p>Pada hari ini, {{ \Carbon\Carbon::parse($assetTransfer->created_at)->translatedFormat('l, d F Y') }}, Karyawan yang bertanda tangan di bawah ini :</p>
-        <p><strong>Nama:</strong> {{ $assetTransfer->toUser->name }}</p>
-        <p><strong>Jabatan:</strong> {{ optional($assetTransfer->toUser->jobTitle)->title }}</p>
+        <p>Pada hari ini, {{ \Carbon\Carbon::parse($assetTransfer->created_at)->translatedFormat('l, d F Y') }}, Karyawan yang bertanda tangan di bawah ini:</p>
+        <table class="details-table">
+            <tr>
+                <td style="width: 10%;">Nama</td>
+                <td style="width: 1%;">:</td>
+                <td style="width: 79%;"><strong>{{ $assetTransfer->toUser->name }}</strong></td>
+            </tr>
+            <tr>
+                <td style="width: 10%;">Jabatan</td>
+                <td style="width: 1%;">:</td>
+                <td style="width: 79%;">{{ optional($assetTransfer->toUser->jobTitle)->title }}</td>
+            </tr>
+        </table>
 
-        @if($assetTransfer->status === 'BERITA ACARA SERAH TERIMA')
-            <p><strong>Menyatakan telah menerima Aset Perusahaan dari :</strong></p>
-        @elseif($assetTransfer->status === 'BERITA ACARA PENGALIHAN BARANG')
-            <p><strong>Menyatakan telah menerima Aset Perusahaan dari :</strong></p>
-        @elseif($assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
-            <p><strong>Menyatakan telah menerima Aset Perusahaan dari :</strong></p>
+        @if($assetTransfer->status === 'BERITA ACARA SERAH TERIMA' || $assetTransfer->status === 'BERITA ACARA PENGALIHAN BARANG' || $assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
+            <p>Menyatakan telah menerima <strong>Aset Perusahaan</strong> dari:</p>
+            <table class="details-table">
+                <tr>
+                    <td style="width: 10%;">Nama</td>
+                    <td style="width: 1%;">:</td>
+                    <td style="width: 79%;"><strong>{{ $assetTransfer->fromUser->name }}</strong></td>
+                </tr>
+                <tr>
+                    <td style="width: 10%;">Jabatan</td>
+                    <td style="width: 1%;">:</td>
+                    <td style="width: 79%;">{{ optional($assetTransfer->fromUser->jobTitle)->title }}</td>
+                </tr>
+            </table>
         @endif
-
-        <p><strong>Nama:</strong> {{ $assetTransfer->fromUser->name }}</p>
-        <p><strong>Jabatan:</strong> {{ optional($assetTransfer->fromUser->jobTitle)->title }}</p>
     </div>
 
-    <p>Adapun Aset Perusahaan yang diserahkan kepada Karyawan antara lain berupa :</p>
+    <p style="margin-bottom: 5px;">Adapun Aset Perusahaan yang diserahkan kepada Karyawan antara lain berupa:</p>
 
     <div class="table-container">
         <table>
@@ -121,24 +140,24 @@
         </table>
     </div>
 
-    <p>Demikian {{ $assetTransfer->status }} ini dibuat dengan sebenarnya dan untuk dipergunakan sebagaimana mestinya.</p>
+    <p>Demikian {{ ucwords(strtolower($assetTransfer->status)) }} ini dibuat dengan sebenarnya dan untuk dipergunakan sebagaimana mestinya.</p>
 
-    <table class="signature-table" style="border: none;">
+    <table class="signature-table">
         <tr>
             <td>
                 <p>Penerima</p>
-                <br><br><br><br>
+                <div class="signature-space"></div>
                 <p><strong>{{ $assetTransfer->toUser->name }}</strong></p>
             </td>
             <td>
                 <p>Pemberi</p>
-                <br><br><br><br>
+                <div class="signature-space"></div>
                 <p><strong>{{ $assetTransfer->fromUser->name }}</strong></p>
             </td>
             @if($assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
                 <td>
                     <p>Mengetahui</p>
-                    <br><br><br><br>
+                    <div class="signature-space"></div>
                     <p><strong>ARLENI</strong></p>
                 </td>
             @endif
