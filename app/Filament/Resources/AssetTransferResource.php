@@ -24,6 +24,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Support\Str;
 
 class AssetTransferResource extends Resource
 {
@@ -133,6 +136,12 @@ class AssetTransferResource extends Resource
                             ])
                             ->columnSpan(1),
                         FileUpload::make('document')
+                            ->preserveFilenames()
+                            ->directory('document')
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (TemporaryUploadedFile $file): string => (string) Str::of($file->getClientOriginalName())
+                                    ->prepend(mt_rand(100, 999) . '-')
+                            )
                             ->columnSpan(1)
                             ->hidden(fn ($context) => $context === 'create'),
                     ])
@@ -222,8 +231,14 @@ class AssetTransferResource extends Resource
                     ->badge()
                     ->color('success')
                     ->searchable(),
-
                 TextColumn::make('created_at')->translateLabel()->dateTime(),
+                TextColumn::make('document')
+                    ->url(fn ($record) => $record && $record->document ? Storage::url($record->document) : '#', true) // Membuat kolom URL untuk unduh
+                    ->openUrlInNewTab()
+                    ->translateLabel()
+                    ->getStateUsing(fn ($record) => $record && $record->document ? 'Dokumen' : '-')
+                    ->icon('heroicon-o-document-text')
+                    ->hidden(fn ($record) => !empty($record->document)),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -231,9 +246,11 @@ class AssetTransferResource extends Resource
             ])
             ->actions([
                 Action::make('download')
-                    ->label('Download PDF')
-                    ->url(fn (AssetTransfer $record): string => route('asset-transfer.download', $record))
-                    ->color('success'),
+                    ->label('Template')
+                    ->icon('heroicon-o-document-text')
+                    ->url(fn (AssetTransfer $record): ?string => $record->document ? route('asset-transfer.download', $record) : null)
+                    ->color('success')
+                    ->visible(fn (AssetTransfer $record): bool => $record->document === null), // Sembunyikan jika kolom document null
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])

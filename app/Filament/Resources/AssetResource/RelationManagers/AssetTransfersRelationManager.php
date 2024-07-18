@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 
 class AssetTransfersRelationManager extends RelationManager
 {
@@ -56,6 +57,13 @@ class AssetTransfersRelationManager extends RelationManager
                     ->getStateUsing(function ($record) {
                         return $record->assetTransfer->status;
                     }),
+                TextColumn::make('assetTransfer.document')
+                    ->url(fn ($record) => $record ? Storage::url($record->assetTransfer->document) : '#', true) // Membuat kolom URL untuk unduh
+                    ->openUrlInNewTab()
+                    ->translateLabel()
+                    ->getStateUsing(fn ($record) => $record ? 'Dokumen' : '-')
+                    ->icon('heroicon-o-document-text')
+                    ->hidden(fn ($record) => !empty($record->assetTransfer->document)),
                 TextColumn::make('assetTransfer.created_at')
                     ->date()
                     ->label(__('Created at')),
