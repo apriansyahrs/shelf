@@ -58,10 +58,10 @@ class AssetTransfersRelationManager extends RelationManager
                         return $record->assetTransfer->status;
                     }),
                 TextColumn::make('assetTransfer.document')
-                    ->url(fn ($record) => $record ? Storage::url($record->assetTransfer->document) : '#', true) // Membuat kolom URL untuk unduh
+                    ->url(fn ($record) => $record && $record->assetTransfer && $record->assetTransfer->document ? Storage::url($record->assetTransfer->document) : null, true) // Membuat kolom URL untuk unduh
                     ->openUrlInNewTab()
                     ->translateLabel()
-                    ->getStateUsing(fn ($record) => $record->assetTransfer->document ? 'Dokumen' : '-')
+                    ->getStateUsing(fn ($record) => $record->assetTransfer && $record->assetTransfer->document ? 'Dokumen' : '-')
                     ->icon('heroicon-o-document-text'),
                 TextColumn::make('assetTransfer.created_at')
                     ->date()

@@ -233,12 +233,11 @@ class AssetTransferResource extends Resource
                     ->searchable(),
                 TextColumn::make('created_at')->translateLabel()->dateTime(),
                 TextColumn::make('document')
-                    ->url(fn ($record) => $record && $record->document ? Storage::url($record->document) : '#', true) // Membuat kolom URL untuk unduh
+                    ->url(fn ($record) => $record && $record->document ? Storage::url($record->document) : null, true) // Membuat kolom URL untuk unduh
                     ->openUrlInNewTab()
                     ->translateLabel()
                     ->getStateUsing(fn ($record) => $record && $record->document ? 'Dokumen' : '-')
-                    ->icon('heroicon-o-document-text')
-                    ->hidden(fn ($record) => !empty($record->document)),
+                    ->icon('heroicon-o-document-text'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
