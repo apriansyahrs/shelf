@@ -247,10 +247,9 @@ class AssetTransferResource extends Resource
             ->actions([
                 Action::make('download')
                     ->label('Template')
-                    ->icon('heroicon-o-document-text')
-                    ->url(fn (AssetTransfer $record): ?string => $record->document ? route('asset-transfer.download', $record) : null)
-                    ->color('success')
-                    ->visible(fn (AssetTransfer $record): bool => $record->document === null), // Sembunyikan jika kolom document null
+                    ->url(fn (AssetTransfer $record): string => route('asset-transfer.download', $record))
+                    ->visible(fn (AssetTransfer $record): bool => $record->document === null)
+                    ->color('success'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
