@@ -10,6 +10,7 @@ use App\Models\JobTitle;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -133,6 +134,10 @@ class AssetTransferResource extends Resource
                                     })
                                     ->searchable()
                                     ->required(),
+                                DatePicker::make('transfer_date')
+                                    ->native(false)
+                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                                    ->required(),
                             ])
                             ->columnSpan(1),
                         FileUpload::make('document')
@@ -231,7 +236,7 @@ class AssetTransferResource extends Resource
                     ->badge()
                     ->color('success')
                     ->searchable(),
-                TextColumn::make('created_at')->translateLabel()->dateTime(),
+                TextColumn::make('transfer_date')->translateLabel()->date(),
                 TextColumn::make('document')
                     ->url(fn ($record) => $record && $record->document ? Storage::url($record->document) : null, true) // Membuat kolom URL untuk unduh
                     ->openUrlInNewTab()

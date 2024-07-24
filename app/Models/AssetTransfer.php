@@ -15,7 +15,8 @@ class AssetTransfer extends Model
         'letter_number',
         'from_user_id',
         'to_user_id',
-        'document'
+        'document',
+        'transfer_date',
     ];
 
     // Relasi ke tabel business_entities

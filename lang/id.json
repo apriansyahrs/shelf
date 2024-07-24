@@ -20,7 +20,6 @@
     "Asset": "Aset",
     "Assets": "Aset",
 
-
     "Purchase date": "Tanggal Pembelian",
     "Business entity": "Badan Usaha",
     "Item name": "Nama Barang",
@@ -49,7 +48,7 @@
     "Job title id": "Jabatan Pekerjaan",
     "Is available": "Status",
     "Document": "Dokumen",
-
+    "Transfer date": "Tanggal transfer",
 
     "Upload bast": "Unggah BAST",
     "Letter number": "Nomor Surat",
