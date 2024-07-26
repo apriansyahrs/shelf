@@ -4,7 +4,7 @@
     <title>{{ $assetTransfer->status }}</title>
     <style>
         @page {
-            margin: 0cm 1cm;
+            margin: 0.5cm 1cm;
         }
         body {
             font-family: 'Times New Roman', Times, serif;
