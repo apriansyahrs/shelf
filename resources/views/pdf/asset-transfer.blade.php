@@ -3,28 +3,35 @@
 <head>
     <title>{{ $assetTransfer->status }}</title>
     <style>
+        @page {
+            margin: 0cm 1cm;
+        }
         body {
             font-family: 'Times New Roman', Times, serif;
-            margin: 40px;
             line-height: 1.5;
-        }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            margin: 0px;
-        }
-        h2 {
-            text-align: center;
-            font-size: 20px;
-            margin-bottom: 20px;
+            margin: 0; /* Mengatur margin body ke 0 untuk menghindari jarak di sekitar body */
+            padding: 0;
         }
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin: 0;
+            padding: 0;
         }
         .header img {
-            width: 150px;
-            margin-bottom: 20px;
+            width: 100%;
+            height: auto;
+        }
+        .content {
+            margin: 32px; /* Mengatur margin untuk konten selain header */
+        }
+        h1, h2 {
+            text-align: center;
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            margin-bottom: 32px;
         }
         .details, .table-container {
             margin-bottom: 30px;
@@ -75,93 +82,95 @@
 </head>
 <body>
     <div class="header">
-        <img src="path/to/logo.png" alt="Company Logo">
+        <img src="{{ asset($headerImage) }}" alt="Company Logo">
     </div>
 
-    <h1>{{ $assetTransfer->status }}</h1>
-    <h2>Nomor: {{ $assetTransfer->letter_number }}</h2>
+    <div class="content">
+        <h1>{{ $assetTransfer->status }}</h1>
+        <h2>Nomor: {{ $assetTransfer->letter_number }}</h2>
 
-    <div class="details">
-        <p>Pada hari ini, {{ \Carbon\Carbon::parse($assetTransfer->created_at)->translatedFormat('l, d F Y') }}, Karyawan yang bertanda tangan di bawah ini:</p>
-        <table class="details-table">
-            <tr>
-                <td style="width: 10%;">Nama</td>
-                <td style="width: 1%;">:</td>
-                <td style="width: 79%;"><strong>{{ $assetTransfer->toUser->name }}</strong></td>
-            </tr>
-            <tr>
-                <td style="width: 10%;">Jabatan</td>
-                <td style="width: 1%;">:</td>
-                <td style="width: 79%;">{{ optional($assetTransfer->toUser->jobTitle)->title }}</td>
-            </tr>
-        </table>
-
-        @if($assetTransfer->status === 'BERITA ACARA SERAH TERIMA' || $assetTransfer->status === 'BERITA ACARA PENGALIHAN BARANG' || $assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
-            <p>Menyatakan telah menerima <strong>Aset Perusahaan</strong> dari:</p>
+        <div class="details">
+            <p>Pada hari ini, {{ \Carbon\Carbon::parse($assetTransfer->created_at)->translatedFormat('l, d F Y') }}, Karyawan yang bertanda tangan di bawah ini:</p>
             <table class="details-table">
                 <tr>
                     <td style="width: 10%;">Nama</td>
                     <td style="width: 1%;">:</td>
-                    <td style="width: 79%;"><strong>{{ $assetTransfer->fromUser->name }}</strong></td>
+                    <td style="width: 79%;"><strong>{{ $assetTransfer->toUser->name }}</strong></td>
                 </tr>
                 <tr>
                     <td style="width: 10%;">Jabatan</td>
                     <td style="width: 1%;">:</td>
-                    <td style="width: 79%;">{{ optional($assetTransfer->fromUser->jobTitle)->title }}</td>
+                    <td style="width: 79%;">{{ optional($assetTransfer->toUser->jobTitle)->title }}</td>
                 </tr>
             </table>
-        @endif
-    </div>
 
-    <p style="margin-bottom: 5px;">Adapun Aset Perusahaan yang diserahkan kepada Karyawan antara lain berupa:</p>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Kategori</th>
-                    <th>Merek/Type</th>
-                    <th>Serial Number/IMEI</th>
-                    <th>Perlengkapan</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($assetTransfer->details as $index => $detail)
+            @if($assetTransfer->status === 'BERITA ACARA SERAH TERIMA' || $assetTransfer->status === 'BERITA ACARA PENGALIHAN BARANG' || $assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
+                <p>Menyatakan telah menerima <strong>Aset Perusahaan</strong> dari:</p>
+                <table class="details-table">
                     <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $detail->asset->category->name }}</td>
-                        <td>{{ $detail->asset->brand->name }} {{ $detail->asset->type }}</td>
-                        <td>{{ $detail->asset->serial_number }}</td>
-                        <td>{{ $detail->equipment }}</td>
+                        <td style="width: 10%;">Nama</td>
+                        <td style="width: 1%;">:</td>
+                        <td style="width: 79%;"><strong>{{ $assetTransfer->fromUser->name }}</strong></td>
                     </tr>
-                @endforeach
-            </tbody>
+                    <tr>
+                        <td style="width: 10%;">Jabatan</td>
+                        <td style="width: 1%;">:</td>
+                        <td style="width: 79%;">{{ optional($assetTransfer->fromUser->jobTitle)->title }}</td>
+                    </tr>
+                </table>
+            @endif
+        </div>
+
+        <p style="margin-bottom: 5px;">Adapun Aset Perusahaan yang diserahkan kepada Karyawan antara lain berupa:</p>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Kategori</th>
+                        <th>Merek/Type</th>
+                        <th>Serial Number/IMEI</th>
+                        <th>Perlengkapan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($assetTransfer->details as $index => $detail)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $detail->asset->category->name }}</td>
+                            <td>{{ $detail->asset->brand->name }} {{ $detail->asset->type }}</td>
+                            <td>{{ $detail->asset->serial_number }}</td>
+                            <td>{{ $detail->equipment }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <p>Demikian {{ ucwords(strtolower($assetTransfer->status)) }} ini dibuat dengan sebenarnya dan untuk dipergunakan sebagaimana mestinya.</p>
+
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <p>Penerima</p>
+                    <div class="signature-space"></div>
+                    <p><strong>{{ $assetTransfer->toUser->name }}</strong></p>
+                </td>
+                <td>
+                    <p>Pemberi</p>
+                    <div class="signature-space"></div>
+                    <p><strong>{{ $assetTransfer->fromUser->name }}</strong></p>
+                </td>
+                @if($assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
+                    <td>
+                        <p>Mengetahui</p>
+                        <div class="signature-space"></div>
+                        <p><strong>ARLENI</strong></p>
+                    </td>
+                @endif
+            </tr>
         </table>
     </div>
-
-    <p>Demikian {{ ucwords(strtolower($assetTransfer->status)) }} ini dibuat dengan sebenarnya dan untuk dipergunakan sebagaimana mestinya.</p>
-
-    <table class="signature-table">
-        <tr>
-            <td>
-                <p>Penerima</p>
-                <div class="signature-space"></div>
-                <p><strong>{{ $assetTransfer->toUser->name }}</strong></p>
-            </td>
-            <td>
-                <p>Pemberi</p>
-                <div class="signature-space"></div>
-                <p><strong>{{ $assetTransfer->fromUser->name }}</strong></p>
-            </td>
-            @if($assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
-                <td>
-                    <p>Mengetahui</p>
-                    <div class="signature-space"></div>
-                    <p><strong>ARLENI</strong></p>
-                </td>
-            @endif
-        </tr>
-    </table>
 </body>
 </html>
