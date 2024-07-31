@@ -1,85 +1,118 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>{{ $assetTransfer->status }}</title>
     <style>
         @page {
             margin: 0.5cm 1cm;
         }
+
         body {
             font-family: 'Times New Roman', Times, serif;
             line-height: 1.5;
-            margin: 0; /* Mengatur margin body ke 0 untuk menghindari jarak di sekitar body */
+            margin: 0;
+            /* Mengatur margin body ke 0 untuk menghindari jarak di sekitar body */
             padding: 0;
         }
+
         .header {
             text-align: center;
             margin: 0;
             padding: 0;
         }
+
         .header img {
             width: 100%;
             height: auto;
         }
+
         .content {
-            margin: 32px; /* Mengatur margin untuk konten selain header */
+            margin: 32px;
+            /* Mengatur margin untuk konten selain header */
         }
-        h1, h2 {
+
+        h1,
+        h2 {
             text-align: center;
             font-size: 18px;
             margin: 0;
             padding: 0;
         }
+
         h2 {
             margin-bottom: 32px;
         }
-        .details, .table-container {
+
+        .details,
+        .table-container {
             margin-bottom: 30px;
         }
+
         .details p {
             margin: 0px;
             font-size: 16px;
             line-height: 1.4;
         }
-        .details-table, .signature-table {
+
+        .details-table,
+        .signature-table {
             width: 100%;
             margin-bottom: 30px;
             font-size: 16px;
             border: none;
         }
-        .details-table td, .signature-table td {
+
+        .details-table td,
+        .signature-table td {
             padding: 0px;
             vertical-align: top;
         }
+
         .details-table td {
             border: none;
         }
+
         .signature-table td {
             text-align: center;
             width: 33.33%;
             border: none;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-size: 16px;
         }
-        table, th, td {
+
+        table,
+        th,
+        td {
             border: 1px solid black;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: left;
         }
+
         .signature-table p {
             margin: 0;
         }
+
         .signature-space {
-            height: 80px; /* Menyesuaikan tinggi ruang untuk tanda tangan */
+            height: 80px;
+            /* Menyesuaikan tinggi ruang untuk tanda tangan */
+        }
+
+        .justify {
+            text-align: justify;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <img src="{{ asset($headerImage) }}" alt="Company Logo">
@@ -90,7 +123,8 @@
         <h2>Nomor: {{ $assetTransfer->letter_number }}</h2>
 
         <div class="details">
-            <p>Pada hari ini, {{ \Carbon\Carbon::parse($assetTransfer->created_at)->translatedFormat('l, d F Y') }}, Karyawan yang bertanda tangan di bawah ini:</p>
+            <p>Pada hari ini, {{ \Carbon\Carbon::parse($assetTransfer->created_at)->translatedFormat('l, d F Y') }},
+                Karyawan yang bertanda tangan di bawah ini:</p>
             <table class="details-table">
                 <tr>
                     <td style="width: 10%;">Nama</td>
@@ -104,7 +138,10 @@
                 </tr>
             </table>
 
-            @if($assetTransfer->status === 'BERITA ACARA SERAH TERIMA' || $assetTransfer->status === 'BERITA ACARA PENGALIHAN BARANG' || $assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
+            @if (
+                $assetTransfer->status === 'BERITA ACARA SERAH TERIMA' ||
+                    $assetTransfer->status === 'BERITA ACARA PENGALIHAN BARANG' ||
+                    $assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
                 <p>Menyatakan telah menerima <strong>Aset Perusahaan</strong> dari:</p>
                 <table class="details-table">
                     <tr>
@@ -148,7 +185,18 @@
             </table>
         </div>
 
-        <p>Demikian {{ ucwords(strtolower($assetTransfer->status)) }} ini dibuat dengan sebenarnya dan untuk dipergunakan sebagaimana mestinya.</p>
+        @if ($assetTransfer->status == 'BERITA ACARA SERAH TERIMA')
+            <p class="justify">Inventaris tersebut digunakan untuk menunjang kinerja karyawan dalam menjalankan tugas dan tanggungjawab
+                pada perusahaan. Apabila masa kerja saya sudah berakhir, saya akan mengembalikannya pada perusahaan.
+                Kerusakan dan kehilangan terhadap inventaris beserta kelengkapannya sepenuhnya menjadi tanggungjawab
+                saya kecuali kerusakan yang terjadi akibat <i>force majeure</i> seperti bencana alam seperti gempa, banjir,
+                tanah longsor, dan lain-lain.</p>
+        @endif
+
+        <p class="justify">Demikian {{ ucwords(strtolower($assetTransfer->status)) }} ini dibuat dengan sebenarnya dan untuk
+            dipergunakan sebagaimana mestinya.</p>
+
+        <p></p>
 
         <table class="signature-table">
             <tr>
@@ -162,7 +210,7 @@
                     <div class="signature-space"></div>
                     <p><strong>{{ $assetTransfer->fromUser->name }}</strong></p>
                 </td>
-                @if($assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
+                @if ($assetTransfer->status === 'BERITA ACARA PENGEMBALIAN BARANG')
                     <td>
                         <p>Mengetahui</p>
                         <div class="signature-space"></div>
@@ -173,4 +221,5 @@
         </table>
     </div>
 </body>
+
 </html>
