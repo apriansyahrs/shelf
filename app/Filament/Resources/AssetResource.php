@@ -119,6 +119,9 @@ class AssetResource extends Resource
                         TextInput::make('item_price')
                             ->translateLabel()
                             ->numeric(),
+                        TextInput::make('qty')
+                            ->translateLabel()
+                            ->numeric(),
                         Select::make('asset_location_id')
                             ->translateLabel()
                             ->options(AssetLocation::orderBy('name')->pluck('name', 'id'))
@@ -176,6 +179,9 @@ class AssetResource extends Resource
                 TextColumn::make('imei2')->translateLabel()->sortable()->searchable(),
                 TextColumn::make('item_price')->translateLabel()->sortable()->money('IDR', true),
                 TextColumn::make('item_age')->translateLabel()->sortable(),
+                TextColumn::make('qty') // Mengambil nama dari relasi businessEntity
+                    ->translateLabel()
+                    ->badge(),
                 TextColumn::make('assetLocation.name')->translateLabel()->sortable()->searchable(),
                 TextColumn::make('is_available')
                     ->label('Status')

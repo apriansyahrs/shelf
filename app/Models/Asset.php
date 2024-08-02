@@ -22,6 +22,7 @@ class Asset extends Model
         'imei2',
         'item_price',
         'asset_location_id',
+        'qty',
         'is_available',
         'recipient_id',
         'recipient_business_entity_id',
