@@ -169,6 +169,7 @@ class AssetResource extends Resource
                         'MAJU' => 'success',
                         'RISM' => 'danger',
                         'TOP' => 'danger',
+                        default => 'primary',
                     }),
                 TextColumn::make('name')->translateLabel()->sortable()->searchable(),
                 TextColumn::make('category.name')->translateLabel()->sortable(),
@@ -198,6 +199,7 @@ class AssetResource extends Resource
                         '0' => 'Transfer',
                     ])
                     ->translateLabel(),
+                    SelectFilter::make('assetLocation')->relationship('assetLocation', 'name')->translateLabel(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

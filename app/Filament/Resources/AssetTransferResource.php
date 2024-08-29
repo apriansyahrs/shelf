@@ -211,6 +211,7 @@ class AssetTransferResource extends Resource
                         'MAJU' => 'success',
                         'RISM' => 'danger',
                         'TOP' => 'danger',
+                        default => 'primary',
                     }),
                 TextColumn::make('status')
                     ->badge()

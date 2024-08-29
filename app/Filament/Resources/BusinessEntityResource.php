@@ -49,6 +49,7 @@ class BusinessEntityResource extends Resource
                         'MAJU' => 'success',
                         'RISM' => 'danger',
                         'TOP' => 'danger',
+                        default => 'primary',
                     }),
                 TextColumn::make('format')->translateLabel(),
                 TextColumn::make('created_at')
