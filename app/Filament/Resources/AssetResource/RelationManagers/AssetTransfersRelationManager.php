@@ -72,7 +72,11 @@ class AssetTransfersRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                // Tables\Actions\CreateAction::make(),
+                Tables\Actions\Action::make('createAssetTransfer')
+                    ->label('Transfer Asset') // Label tombol yang akan tampil di header
+                    ->url(route('filament.admin.resources.asset-transfers.create')) // URL ke halaman create
+                    ->icon('heroicon-o-plus') // Ikon untuk tombol
+                    ->color('success')
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
