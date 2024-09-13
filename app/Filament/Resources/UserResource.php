@@ -94,6 +94,7 @@ class UserResource extends Resource
                         'MAJU' => 'success',
                         'RISM' => 'danger',
                         'TOP' => 'danger',
+                        default => 'primary',
                     }),
                 TextColumn::make('jobTitle.title')->translateLabel()->sortable()->searchable(),
                 // TextColumn::make('email')
