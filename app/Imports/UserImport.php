@@ -17,18 +17,18 @@ class UserImport implements ToCollection
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            if ($row[0] !== 'Nama') { // skip header
-                $businessEntity = BusinessEntity::where('name', $row[1])->first();
-                $jobTitle = JobTitle::where('title', $row[2])->first();
+            if ($row[0] !== 'Nama' && !empty($row[0])) { // skip header and empty names
+                // Cari atau buat entitas bisnis
+                $businessEntity = BusinessEntity::firstOrCreate(
+                    ['name' => $row[1]], // Kondisi pencarian
+                );
 
-                if (!$businessEntity) {
-                    throw ValidationException::withMessages(['business_entity' => "Badan Usaha '{$row[1]}' tidak ditemukan"]);
-                }
+                // Cari atau buat jabatan
+                $jobTitle = JobTitle::firstOrCreate(
+                    ['title' => $row[2]], // Kondisi pencarian
+                );
 
-                if (!$jobTitle) {
-                    throw ValidationException::withMessages(['job_title' => "Jabatan '{$row[2]}' tidak ditemukan"]);
-                }
-
+                // Buat user baru
                 User::create([
                     'name' => $row[0],
                     'business_entity_id' => $businessEntity->id,
