@@ -10,7 +10,7 @@ class BusinessEntity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'format'];
+    protected $fillable = ['name', 'format', 'color', 'letterhead'];
 
     public function assets(): HasMany
     {

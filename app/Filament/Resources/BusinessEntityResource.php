@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\BadgeColor;
 use App\Filament\Resources\BusinessEntityResource\Pages;
 use App\Filament\Resources\BusinessEntityResource\RelationManagers;
 use App\Models\BusinessEntity;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,6 +36,28 @@ class BusinessEntityResource extends Resource
                 TextInput::make('format')
                     ->required()
                     ->maxLength(255),
+                Select::make('color')
+                    ->columnSpan(2)
+                    ->label('Color')
+                    ->allowHtml()
+                    ->options(
+                        collect(BadgeColor::cases())
+                            ->sort(static fn($a, $b) => $a->value <=> $b->value)
+                            ->mapWithKeys(static fn($case) => [
+                                $case->value => "<span class='flex items-center gap-x-4'>
+                            <span class='rounded-full w-4 h-4' style='background:rgb(" . $case->getColor()[600] . ")'></span>
+                            <span>" . $case->getLabel() . '</span>
+                            </span>',
+                            ]),
+                    )
+                    ->searchable()
+                    ->required(),
+                FileUpload::make('letterhead')
+                    ->image()
+                    ->label('Kop Surat')
+                    ->disk('public')
+                    ->directory('kopsurat')
+                    ->columnSpan(2),
             ]);
     }
 
@@ -42,15 +67,10 @@ class BusinessEntityResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->translateLabel('Business Entity')
+                    ->searchable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'CV.CS' => 'gray',
-                        'MKLI' => 'warning',
-                        'MAJU' => 'success',
-                        'RISM' => 'danger',
-                        'TOP' => 'danger',
-                        default => 'primary',
-                    }),
+                    ->color(fn($record) => $record->color)
+                    ->getStateUsing(fn($record) => $record->name),
                 TextColumn::make('format')->translateLabel(),
                 TextColumn::make('created_at')
                     ->translateLabel()

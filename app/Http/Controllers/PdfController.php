@@ -19,17 +19,15 @@ class PdfController extends Controller
             'BERITA ACARA PENGEMBALIAN BARANG' => 'BAPEB',
         ];
 
-        // Pemetaan entitas bisnis ke gambar header
-        $headerImageMap = [
-            'MAJU' => 'images/maju_kop.png',
-            'MKLI' => 'images/mkli_kop.png',
-            'TOP' => 'images/top_kop.png',
-            'RISM' => 'images/rism_kop.png',
-            'CV.CS' => 'images/cvcs_kop.png',
-        ];
-
         $status = $statusMap[$assetTransfer->status] ?? 'UNKNOWN';
-        $headerImage = $headerImageMap[$assetTransfer->businessEntity->name] ?? 'images/default_kop.png';
+
+        // Menggunakan nilai dari kolom letterhead, atau default image jika tidak ada
+        $headerImage = $assetTransfer->businessEntity->letterhead
+        ? asset('storage/' . $assetTransfer->businessEntity->letterhead)
+        : asset('images/cvcs_kop.png');
+
+
+
         $letterNumber = $assetTransfer->letter_number;
         $toUserName = strtolower(str_replace(' ', '_', $assetTransfer->toUser->name));
         $toUserJobTitle = $assetTransfer->toUser->jobTitle ? strtolower(str_replace(' ', '_', $assetTransfer->toUser->jobTitle->title)) : 'no_title';

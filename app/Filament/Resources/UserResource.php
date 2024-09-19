@@ -83,22 +83,12 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                // TextColumn::make('username')
-                //     ->searchable(),
                 TextColumn::make('businessEntity.name')
-                    ->translateLabel()
+                    ->translateLabel('Business Entity')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'CV.CS' => 'gray',
-                        'MKLI' => 'warning',
-                        'MAJU' => 'success',
-                        'RISM' => 'danger',
-                        'TOP' => 'danger',
-                        default => 'primary',
-                    }),
+                    ->color(fn ($record) => $record->businessEntity->color)
+                    ->getStateUsing(fn ($record) => $record->businessEntity->name ?? null),
                 TextColumn::make('jobTitle.title')->translateLabel()->sortable()->searchable(),
-                // TextColumn::make('email')
-                //     ->searchable(),
                 TextColumn::make('roles.name')
                     ->badge()
                     ->visible($isSuperAdmin),

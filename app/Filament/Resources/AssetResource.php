@@ -163,14 +163,8 @@ class AssetResource extends Resource
                 TextColumn::make('businessEntity.name') // Mengambil nama dari relasi businessEntity
                     ->translateLabel()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'CV.CS' => 'gray',
-                        'MKLI' => 'warning',
-                        'MAJU' => 'success',
-                        'RISM' => 'danger',
-                        'TOP' => 'danger',
-                        default => 'primary',
-                    }),
+                    ->color(fn ($record) => $record->businessEntity->color)
+                    ->getStateUsing(fn ($record) => $record->businessEntity->name),
                 TextColumn::make('name')->translateLabel()->sortable()->searchable(),
                 TextColumn::make('category.name')->translateLabel()->sortable(),
                 TextColumn::make('brand.name')->translateLabel()->sortable()->searchable(),
@@ -187,8 +181,8 @@ class AssetResource extends Resource
                 TextColumn::make('is_available')
                     ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => $state == 'Tersedia' ? 'success' : 'warning')
-                    ->formatStateUsing(fn (string $state): string => $state),
+                    ->color(fn(string $state): string => $state == 'Tersedia' ? 'success' : 'warning')
+                    ->formatStateUsing(fn(string $state): string => $state),
             ])
             ->filters([
                 SelectFilter::make('businessEntity')->relationship('businessEntity', 'name')->translateLabel(),
@@ -199,7 +193,7 @@ class AssetResource extends Resource
                         '0' => 'Transfer',
                     ])
                     ->translateLabel(),
-                    SelectFilter::make('assetLocation')->relationship('assetLocation', 'name')->translateLabel(),
+                SelectFilter::make('assetLocation')->relationship('assetLocation', 'name')->translateLabel(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

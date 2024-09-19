@@ -205,14 +205,8 @@ class AssetTransferResource extends Resource
                 TextColumn::make('businessEntity.name') // Mengambil nama dari relasi businessEntity
                     ->translateLabel()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'CV.CS' => 'gray',
-                        'MKLI' => 'warning',
-                        'MAJU' => 'success',
-                        'RISM' => 'danger',
-                        'TOP' => 'danger',
-                        default => 'primary',
-                    }),
+                    ->color(fn ($record) => $record->businessEntity->color)
+                    ->getStateUsing(fn ($record) => $record->businessEntity->name),
                 TextColumn::make('status')
                     ->badge()
                     ->colors([

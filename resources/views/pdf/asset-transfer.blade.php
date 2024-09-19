@@ -115,9 +115,8 @@
 
 <body>
     <div class="header">
-        <img src="{{ asset($headerImage) }}" alt="Company Logo">
+        <img src="{{ $headerImage }}" alt="Kop Surat">
     </div>
-
     <div class="content">
         <h1>{{ $assetTransfer->status }}</h1>
         <h2>Nomor: {{ $assetTransfer->letter_number }}</h2>
