@@ -9,6 +9,8 @@ use App\Policies\ExceptionPolicy;
 use App\Policies\RolePolicy;
 use BezhanSalleh\FilamentExceptions\Models\Exception;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
@@ -30,6 +32,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('viewPulse', function (User $user) {
+            return $user->hasRole('super_admin');
+        });
     }
 }
