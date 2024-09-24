@@ -17,6 +17,10 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Grid as ComponentsGrid;
+use Filament\Infolists\Components\Section as ComponentSection;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -27,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Filament\Infolists\Components\RepeatableEntry;
 use Illuminate\Support\Str;
 
 class AssetTransferResource extends Resource
@@ -47,15 +52,15 @@ class AssetTransferResource extends Resource
                             ->schema([
                                 TextInput::make('letter_number')
                                     ->translateLabel()
-                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                                    ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->extraInputAttributes(['readonly' => true]),
                                 Select::make('business_entity_id')
                                     ->translateLabel()
                                     ->options(BusinessEntity::all()->pluck('name', 'id'))
                                     ->required()
                                     ->reactive()
-                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
-                                    ->afterStateUpdated(fn ($state, callable $set) => $set(
+                                    ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
+                                    ->afterStateUpdated(fn($state, callable $set) => $set(
                                         'letter_number',
                                         self::generateLetterNumber(BusinessEntity::find($state), null)
                                     )),
@@ -65,7 +70,7 @@ class AssetTransferResource extends Resource
                                     ->translateLabel()
                                     ->reactive()
                                     ->searchable()
-                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                                    ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->options(function () {
                                         return User::whereDoesntHave('roles', function ($query) {
                                             $query->where('name', 'super_admin');
@@ -99,7 +104,7 @@ class AssetTransferResource extends Resource
                                     }),
                                 Select::make('to_user_id')
                                     ->translateLabel()
-                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                                    ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->options(function (callable $get) {
                                         $fromUserId = $get('from_user_id');
                                         return User::where('id', '!=', $fromUserId)
@@ -136,7 +141,7 @@ class AssetTransferResource extends Resource
                                     ->required(),
                                 DatePicker::make('transfer_date')
                                     ->native(false)
-                                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                                    ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
                                     ->required(),
                             ])
                             ->columnSpan(1),
@@ -144,24 +149,24 @@ class AssetTransferResource extends Resource
                             ->preserveFilenames()
                             ->directory('document')
                             ->getUploadedFileNameForStorageUsing(
-                                fn (TemporaryUploadedFile $file): string => (string) Str::of($file->getClientOriginalName())
+                                fn(TemporaryUploadedFile $file): string => (string) Str::of($file->getClientOriginalName())
                                     ->prepend(mt_rand(100, 999) . '-')
                             )
                             ->columnSpan(1)
-                            ->hidden(fn ($context) => $context === 'create'),
+                            ->hidden(fn($context) => $context === 'create'),
                     ])
                     ->columns(1)
                     ->columnSpan(1),
                 Repeater::make('details')
                     ->relationship('details')
-                    ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                    ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
                     ->schema([
                         Select::make('asset_id')
                             ->reactive()
                             ->required()
                             ->translateLabel()
                             ->searchable()
-                            ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin)
+                            ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
                             ->options(function (callable $get) {
                                 $fromUserId = $get('../../from_user_id');
                                 $selectedAssets = collect($get('../../details'))->pluck('asset_id')->filter()->all();
@@ -188,11 +193,11 @@ class AssetTransferResource extends Resource
                             }),
                         TextInput::make('equipment')
                             ->translateLabel()
-                            ->disabled(fn ($context) => $context === 'edit' && !$isSuperAdmin),
+                            ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin),
                     ])
                     ->translateLabel()
                     ->required()
-                    ->hidden(fn (callable $get) => !$get('from_user_id')) // Hide the repeater when from_user_id is not selected
+                    ->hidden(fn(callable $get) => !$get('from_user_id')) // Hide the repeater when from_user_id is not selected
                     ->columns(2)
                     ->columnSpan(2),
             ])->columns(3);
@@ -205,8 +210,8 @@ class AssetTransferResource extends Resource
                 TextColumn::make('businessEntity.name') // Mengambil nama dari relasi businessEntity
                     ->translateLabel()
                     ->badge()
-                    ->color(fn ($record) => $record->businessEntity->color)
-                    ->getStateUsing(fn ($record) => $record->businessEntity->name),
+                    ->color(fn($record) => $record->businessEntity->color)
+                    ->getStateUsing(fn($record) => $record->businessEntity->name),
                 TextColumn::make('status')
                     ->badge()
                     ->colors([
@@ -233,10 +238,10 @@ class AssetTransferResource extends Resource
                     ->searchable(),
                 TextColumn::make('transfer_date')->translateLabel()->date(),
                 TextColumn::make('document')
-                    ->url(fn ($record) => $record && $record->document ? Storage::url($record->document) : null, true) // Membuat kolom URL untuk unduh
+                    ->url(fn($record) => $record && $record->document ? Storage::url($record->document) : null, true) // Membuat kolom URL untuk unduh
                     ->openUrlInNewTab()
                     ->translateLabel()
-                    ->getStateUsing(fn ($record) => $record && $record->document ? 'Dokumen' : '-')
+                    ->getStateUsing(fn($record) => $record && $record->document ? 'Dokumen' : '-')
                     ->icon('heroicon-o-document-text'),
             ])
             ->defaultSort('created_at', 'desc')
@@ -246,8 +251,8 @@ class AssetTransferResource extends Resource
             ->actions([
                 Action::make('download')
                     ->label('Template')
-                    ->url(fn (AssetTransfer $record): string => route('asset-transfer.download', $record))
-                    ->visible(fn (AssetTransfer $record): bool => $record->document === null)
+                    ->url(fn(AssetTransfer $record): string => route('asset-transfer.download', $record))
+                    ->visible(fn(AssetTransfer $record): bool => $record->document === null)
                     ->color('success'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -273,6 +278,7 @@ class AssetTransferResource extends Resource
             'index' => Pages\ListAssetTransfers::route('/'),
             'create' => Pages\CreateAssetTransfer::route('/create'),
             'edit' => Pages\EditAssetTransfer::route('/{record}/edit'),
+            'view' => Pages\ViewAssetTransfer::route('/{record}'),
         ];
     }
 
@@ -297,5 +303,74 @@ class AssetTransferResource extends Resource
 
         // Generate the new letter number
         return "{$format}{$newNumber}";
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                ComponentSection::make('📄 Informasi Transfer Aset')
+                    ->schema([
+                        ComponentsGrid::make(2) // Membuat grid dengan 2 kolom untuk tampilan yang lebih rapi
+                            ->schema([
+                                TextEntry::make('letter_number')
+                                    ->label('Nomor Surat')
+                                    ->extraAttributes([
+                                        'style' => 'font-weight: bold; color: #1a202c;', // Menggunakan styling khusus
+                                    ]),
+                                TextEntry::make('status')
+                                    ->label('Status Transfer')
+                                    ->badge() // Menambahkan Badge untuk memberikan warna berdasarkan status
+                                    ->colors([
+                                        'primary' => 'BERITA ACARA SERAH TERIMA',
+                                        'success' => 'BERITA ACARA PENGALIHAN BARANG',
+                                        'danger' => 'BERITA ACARA PENGEMBALIAN BARANG',
+                                        'secondary' => 'Unknown Status',
+                                    ]),
+                                TextEntry::make('fromUser.name')
+                                    ->label('Dari Pengguna')
+                                    ->icon('heroicon-o-user')
+                                    ->columnSpan(1),
+                                TextEntry::make('toUser.name')
+                                    ->label('Ke Pengguna')
+                                    ->icon('heroicon-o-user')
+                                    ->columnSpan(1),
+                                TextEntry::make('transfer_date')
+                                    ->label('Tanggal Transfer')
+                                    ->date()
+                                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d M Y'))
+                                    ->extraAttributes(['style' => 'font-weight: bold;']),
+                                TextEntry::make('businessEntity.name')
+                                    ->label('Entitas Bisnis')
+                                    ->icon('heroicon-o-briefcase'),
+                                TextEntry::make('document')
+                                    ->label('Dokumen')
+                                    ->url(fn($record) => $record->document ? Storage::url($record->document) : null, true)
+                                    ->openUrlInNewTab()
+                                    ->icon('heroicon-o-document')
+                                    ->getStateUsing(fn($record) => $record && $record->document ? 'Unduh Dokumen' : 'Tidak Ada Dokumen')
+                                    ->extraAttributes(['style' => 'font-weight:bold;color:#007bff;']),
+                            ]),
+                    ])
+                    ->columns(2) // Atur kolom agar menampilkan data dalam dua kolom
+                    ->collapsible(), // Bisa diklik untuk membuka atau menutup
+                    ComponentSection::make('📦 Detail Aset yang Ditransfer')
+                    ->schema([
+                        RepeatableEntry::make('details')
+                            ->schema([
+                                ComponentsGrid::make(2)  // Atur dalam 2 kolom
+                                    ->schema([
+                                        TextEntry::make('asset.name')
+                                            ->label('Nama Aset')
+                                            ->extraAttributes(['style' => 'font-weight: bold;']),  // Font lebih tebal untuk nama aset
+                                        TextEntry::make('equipment')
+                                            ->label('Keterangan Peralatan')
+                                    ]),
+                            ])
+                            ->columnSpan(2),  // Luaskan kolom agar detailnya rapi
+                    ])
+                    ->collapsible()  // Section collapsible
+                    ->columns(2), // Atur agar section ditampilkan dalam 2 kolom
+            ]);
     }
 }

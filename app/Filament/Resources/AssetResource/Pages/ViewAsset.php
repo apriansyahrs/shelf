@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AssetResource\Pages;
 
 use App\Filament\Resources\AssetResource;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewAsset extends ViewRecord
@@ -12,7 +13,7 @@ class ViewAsset extends ViewRecord
     protected function getActions(): array
     {
         return [
-
+            EditAction::make(),
         ];
     }
 }

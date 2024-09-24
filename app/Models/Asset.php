@@ -28,6 +28,10 @@ class Asset extends Model
         'recipient_business_entity_id',
     ];
 
+    protected $casts = [
+        'is_available' => 'boolean',  // Casting 'is_available' sebagai boolean
+    ];
+
     // Relasi ke tabel business_entities
     public function businessEntity()
     {
@@ -102,5 +106,55 @@ class Asset extends Model
     public function getIsAvailableAttribute($value)
     {
         return $value ? 'Tersedia' : 'Transfer';
+    }
+
+    public function checkValidRecipient()
+    {
+        // Ambil transfer terbaru terkait dengan asset ini dari tabel asset_transfer_details
+        $latestTransferDetail = AssetTransferDetail::where('asset_id', $this->id)
+            ->latest()
+            ->first();
+
+        // Jika tidak ada transfer detail, anggap valid (karena tidak ada data untuk dibandingkan)
+        if (!$latestTransferDetail) {
+            return true;
+        }
+
+        // Ambil transfer terkait dari tabel asset_transfers
+        $latestTransfer = AssetTransfer::find($latestTransferDetail->asset_transfer_id);
+
+        // Jika tidak ada transfer terkait, anggap valid
+        if (!$latestTransfer) {
+            return true;
+        }
+
+        // Cek apakah recipient_id di assets sama dengan to_user_id di asset_transfers
+        if ($this->recipient_id != $latestTransfer->to_user_id) {
+            return false;
+        }
+
+        // Ambil user recipient berdasarkan recipient_id
+        $recipient = User::find($this->recipient_id);
+
+        // Jika recipient tidak ditemukan, anggap tidak valid
+        if (!$recipient) {
+            return false;
+        }
+
+        // Cek apakah recipient memiliki role 'general_affair'
+        $hasGeneralAffairRole = $recipient->hasRole('general_affair'); // Asumsi ada metode hasRole()
+
+        // Jika recipient memiliki role 'general_affair', is_available harus 1
+        if ($hasGeneralAffairRole && $this->is_available != 'Tersedia') {
+            return false;
+        }
+
+        // Jika recipient tidak memiliki role 'general_affair', is_available harus 0
+        if (!$hasGeneralAffairRole && $this->is_available != 'Transfer') {
+            return false;
+        }
+
+        // Jika semua pengecekan valid, kembalikan true
+        return true;
     }
 }
