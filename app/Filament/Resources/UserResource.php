@@ -109,6 +109,10 @@ class UserResource extends Resource
                         'danger' => fn($state) => $state === 'Duplicate',
                         'success' => fn($state) => $state === 'Unique',
                     ]),
+                TextColumn::make('totalAssetTransfersCount')
+                    ->label('Total Asset Transfers')
+                    ->getStateUsing(fn($record) => $record->assetTransfersFrom()->count() + $record->assetTransfersTo()->count())
+                    ->badge(),
             ])
             ->filters([
                 //

@@ -73,6 +73,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(AssetTransfer::class);
     }
 
+    public function assetTransfersFrom()
+    {
+        return $this->hasMany(AssetTransfer::class, 'from_user_id');
+    }
+
+    public function assetTransfersTo()
+    {
+        return $this->hasMany(AssetTransfer::class, 'to_user_id');
+    }
+
     public function assetTransferDetails()
     {
         return $this->hasManyThrough(
