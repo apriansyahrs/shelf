@@ -67,4 +67,28 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsTo(JobTitle::class);
     }
+
+    public function assetTransfers()
+    {
+        return $this->hasMany(AssetTransfer::class);
+    }
+
+    public function assetTransferDetails()
+    {
+        return $this->hasManyThrough(
+            AssetTransferDetail::class, // Model tujuan akhir (AssetTransferDetail)
+            AssetTransfer::class, // Model perantara (AssetTransfer)
+            'from_user_id', // Foreign key di AssetTransfer (relasi ke User)
+            'asset_transfer_id', // Foreign key di AssetTransferDetail (relasi ke AssetTransfer)
+            'id', // Local key di User
+            'id'  // Local key di AssetTransfer
+        );
+    }
+
+    public function isDuplicate(): bool
+    {
+        return User::where('name', $this->name)
+            ->where('id', '!=', $this->id)  // Hindari perbandingan dengan dirinya sendiri
+            ->exists();
+    }
 }

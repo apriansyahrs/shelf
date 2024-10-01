@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\AssetResource\RelationManagers\AssetTransfersRelationManager;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\RelationManagers\FromAssetTransfersRelationManager;
 use App\Models\BusinessEntity;
 use App\Models\JobTitle;
 use App\Models\User;
@@ -13,6 +15,10 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -59,8 +65,8 @@ class UserResource extends Resource
                         ->visible($isSuperAdmin),
                     TextInput::make('password')
                         ->password()
-                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                        ->dehydrated(fn ($state) => filled($state))
+                        ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                        ->dehydrated(fn($state) => filled($state))
                         ->maxLength(255)
                         ->visible($isSuperAdmin),
                     DateTimePicker::make('email_verified_at')
@@ -82,22 +88,35 @@ class UserResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('businessEntity.name')
                     ->translateLabel('Business Entity')
                     ->badge()
-                    ->color(fn ($record) => $record->businessEntity->color)
-                    ->getStateUsing(fn ($record) => $record->businessEntity->name ?? null),
+                    ->color(fn($record) => $record->businessEntity->color)
+                    ->getStateUsing(fn($record) => $record->businessEntity->name ?? null),
                 TextColumn::make('jobTitle.title')->translateLabel()->sortable()->searchable(),
                 TextColumn::make('roles.name')
                     ->badge()
                     ->visible($isSuperAdmin),
+                TextColumn::make('isDuplicate')
+                    ->label('Duplicate Status')
+                    ->getStateUsing(function ($record) {
+                        return $record->isDuplicate() ? 'Duplicate' : 'Unique';
+                    })
+                    ->badge()
+                    ->colors([
+                        'danger' => fn($state) => $state === 'Duplicate',
+                        'success' => fn($state) => $state === 'Unique',
+                    ]),
             ])
             ->filters([
                 //
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -109,7 +128,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AssetTransfersRelationManager::class,
         ];
     }
 
@@ -119,6 +138,7 @@ class UserResource extends Resource
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/{record}'),
         ];
     }
 
@@ -143,5 +163,48 @@ class UserResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('Users');
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('User Information')
+                    ->description('Details about the user')
+                    ->schema([
+                        Grid::make(2) // 2-column layout for better readability
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->label('Full Name')
+                                    ->columnSpan(1),
+                                TextEntry::make('email')
+                                    ->label('Email Address')
+                                    ->columnSpan(1),
+                            ]),
+                    ]),
+
+                Section::make('Professional Information')
+                    ->description('Business and Job details')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextEntry::make('businessEntity.name')
+                                    ->label('Business Entity')
+                                    ->columnSpan(1),
+                                TextEntry::make('jobTitle.title')
+                                    ->label('Job Title')
+                                    ->columnSpan(1),
+                            ]),
+                    ]),
+
+                Section::make('Timestamps')
+                    ->description('Creation and update times')
+                    ->schema([
+                        TextEntry::make('created_at')
+                            ->label('Created At')
+                            ->dateTime()
+                            ->columnSpan(2),
+                    ]),
+            ]);
     }
 }

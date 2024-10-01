@@ -31,6 +31,12 @@ class AssetTransfer extends Model
         return $this->belongsTo(Asset::class);
     }
 
+    // Relasi ke tabel asset_transfer_details
+    public function details(): HasMany
+    {
+        return $this->hasMany(AssetTransferDetail::class);
+    }
+
     // Relasi ke tabel users untuk from_user_id
     public function fromUser()
     {
@@ -41,12 +47,6 @@ class AssetTransfer extends Model
     public function toUser()
     {
         return $this->belongsTo(User::class, 'to_user_id');
-    }
-
-    // Relasi ke tabel asset_transfer_details
-    public function details(): HasMany
-    {
-        return $this->hasMany(AssetTransferDetail::class);
     }
 
     public function scopeGeneralAffair($query)

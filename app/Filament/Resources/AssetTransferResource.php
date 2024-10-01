@@ -57,6 +57,7 @@ class AssetTransferResource extends Resource
                                 Select::make('business_entity_id')
                                     ->translateLabel()
                                     ->options(BusinessEntity::all()->pluck('name', 'id'))
+                                    ->searchable()
                                     ->required()
                                     ->reactive()
                                     ->disabled(fn($context) => $context === 'edit' && !$isSuperAdmin)
