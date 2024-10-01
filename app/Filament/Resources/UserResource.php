@@ -99,20 +99,6 @@ class UserResource extends Resource
                 TextColumn::make('roles.name')
                     ->badge()
                     ->visible($isSuperAdmin),
-                TextColumn::make('isDuplicate')
-                    ->label('Duplicate Status')
-                    ->getStateUsing(function ($record) {
-                        return $record->isDuplicate() ? 'Duplicate' : 'Unique';
-                    })
-                    ->badge()
-                    ->colors([
-                        'danger' => fn($state) => $state === 'Duplicate',
-                        'success' => fn($state) => $state === 'Unique',
-                    ]),
-                TextColumn::make('totalAssetTransfersCount')
-                    ->label('Total Asset Transfers')
-                    ->getStateUsing(fn($record) => $record->assetTransfersFrom()->count() + $record->assetTransfersTo()->count())
-                    ->badge(),
             ])
             ->filters([
                 //
